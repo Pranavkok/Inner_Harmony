@@ -273,6 +273,14 @@ ul  { list-style: none; }
     gap: 12px;
 }
 
+.logo-mark-img {
+    width: 48px; height: 48px;
+    object-fit: contain;
+    flex-shrink: 0;
+    transition: transform 0.4s var(--curve-bounce);
+    border-radius: 50%;
+}
+
 .logo-mark {
     width: 42px; height: 42px;
     border-radius: 50%;
