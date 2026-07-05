@@ -13,6 +13,13 @@
         href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+        }
+    }
+    </script>
 </head>
 
 <body>
@@ -73,16 +80,20 @@
     </div>
 
     <!-- ========== HERO — CINEMATIC SEQUENCE ========== -->
+    <div class="hero-wrap" id="heroWrap">
     <section class="hero" id="hero">
-        <!-- Canvas for floating particles -->
+        <!-- WebGL sacred-geometry centerpiece (desktop, WebGL-capable, no reduced-motion only) -->
+        <canvas class="hero-webgl-canvas" id="hero-webgl"></canvas>
+
+        <!-- Canvas for floating particles (fallback: mobile / reduced-motion / no-WebGL) -->
         <canvas class="hero-canvas" id="heroCanvas"></canvas>
 
-        <!-- Animated gradient orbs -->
+        <!-- Animated gradient orbs (fallback) -->
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
 
-        <!-- Rotating mandala backdrop -->
+        <!-- Rotating mandala backdrop (fallback) -->
         <div class="hero-mandala-bg" id="heroMandala">
             <img src="mandala_nobg.png" alt="">
         </div>
@@ -92,9 +103,25 @@
 
             <!-- Phase 1: Questions (hooks) -->
             <div class="question-phase" id="questionPhase">
-                <div class="question-item" id="q1">
-                    <span class="q-prefix">Are you</span>
-                    <span class="q-word" id="qWord">feeling lost?</span>
+                <div class="question-scene active" data-corner="bl">
+                    <h2 class="q-heading">Feeling lost?</h2>
+                    <p class="q-support">Parenting decisions, career doubts, or just life — clarity starts with understanding yourself.</p>
+                </div>
+                <div class="question-scene" data-corner="tr">
+                    <h2 class="q-heading">Overwhelmed &amp; anxious?</h2>
+                    <p class="q-support">Reiki and tarot-guided healing help you release what's weighing you down.</p>
+                </div>
+                <div class="question-scene" data-corner="tl">
+                    <h2 class="q-heading">Stuck in one place?</h2>
+                    <p class="q-support">A DMIT assessment reveals the strengths you didn't know you had.</p>
+                </div>
+                <div class="question-scene" data-corner="br">
+                    <h2 class="q-heading">Seeking real clarity?</h2>
+                    <p class="q-support">Dr. Gargee Gadgil blends medicine, therapy &amp; intuition for answers that actually fit you.</p>
+                </div>
+                <div class="question-scene" data-corner="center">
+                    <h2 class="q-heading">Ready to heal?</h2>
+                    <p class="q-support">Your journey to lasting transformation begins here.</p>
                 </div>
             </div>
 
@@ -128,6 +155,7 @@
             </div>
         </div>
     </section>
+    </div><!-- /.hero-wrap -->
 
     <!-- ========== INTERACTIVE HOOK — "WHAT BRINGS YOU HERE?" ========== -->
     <section class="hook-section" id="hookSection">
@@ -971,6 +999,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="js/main.js"></script>
+    <script type="module" src="js/hero-webgl.js"></script>
 </body>
 
 </html>

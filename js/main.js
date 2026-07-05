@@ -142,8 +142,9 @@ function startHeroSequence() {
 
     const questionPhase = document.getElementById('questionPhase');
     const revealPhase = document.getElementById('revealPhase');
-    const qWord = document.getElementById('qWord');
+    const scenes = questionPhase ? Array.from(questionPhase.querySelectorAll('.question-scene')) : [];
     const heroScroll = document.getElementById('heroScroll');
+    const heroWrap = document.getElementById('heroWrap');
 
     const revealNow = () => {
         if (questionPhase) questionPhase.classList.add('done');
@@ -153,36 +154,85 @@ function startHeroSequence() {
 
     if (!revealPhase) return;
 
-    // Reduced motion / no question phase → reveal immediately
-    if (prefersReduced || !questionPhase || !qWord) {
+    // Reduced motion / no question scenes → reveal immediately
+    if (prefersReduced || !questionPhase || !scenes.length) {
         revealNow();
         return;
     }
 
-    const questions = [
-        'feeling lost?',
-        'overwhelmed & anxious?',
-        'stuck in one place?',
-        'seeking real clarity?',
-        'ready to heal?',
-    ];
+    const setActiveScene = (index) => {
+        scenes.forEach((el, i) => el.classList.toggle('active', i === index));
+    };
 
+    // Desktop/WebGL hero is pinned for 200vh (see js/hero-webgl.js) — pop the
+    // questions in step with actual scroll progress through that pin instead
+    // of a fixed timer, so they advance together with the 3D animation.
+    if (document.body.classList.contains('webgl-hero') && heroWrap) {
+        let currentIndex = 0;
+        let revealed = false;
+        setActiveScene(0);
+
+        const questionSpan = 0.6; // questions occupy the first 60% of the pin, brand holds the rest
+
+        const onScroll = () => {
+            if (revealed) return;
+
+            // WebGL init can still fail asynchronously after this branch was chosen
+            // (e.g. three.js import rejects) — if the pin is gone, stop waiting on
+            // scroll progress that will never arrive and reveal immediately.
+            if (!document.body.classList.contains('webgl-hero')) {
+                revealed = true;
+                window.removeEventListener('scroll', onScroll);
+                revealNow();
+                return;
+            }
+
+            const rect = heroWrap.getBoundingClientRect();
+            const total = rect.height - window.innerHeight;
+            if (total <= 0) {
+                revealed = true;
+                window.removeEventListener('scroll', onScroll);
+                revealNow();
+                return;
+            }
+
+            const progress = Math.min(1, Math.max(0, -rect.top / total));
+
+            if (progress >= questionSpan) {
+                revealed = true;
+                window.removeEventListener('scroll', onScroll);
+                revealNow();
+                return;
+            }
+
+            const slot = Math.min(
+                scenes.length - 1,
+                Math.floor((progress / questionSpan) * scenes.length)
+            );
+            if (slot !== currentIndex) {
+                currentIndex = slot;
+                setActiveScene(slot);
+            }
+        };
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+        return;
+    }
+
+    // Fallback (mobile / reduced-motion-off but no WebGL): original fixed-timer cycle.
     let index = 0;
-    qWord.textContent = questions[0];
+    setActiveScene(0);
 
     const cycle = () => {
         index++;
-        if (index >= questions.length) {
+        if (index >= scenes.length) {
             // Finish question phase, unveil the brand
             setTimeout(revealNow, 700);
             return;
         }
-        qWord.classList.add('swap');
-        setTimeout(() => {
-            qWord.textContent = questions[index];
-            qWord.classList.remove('swap');
-            setTimeout(cycle, 1100);
-        }, 400);
+        setActiveScene(index);
+        setTimeout(cycle, 1500);
     };
 
     setTimeout(cycle, 1200);

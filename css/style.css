@@ -1972,27 +1972,36 @@ ul  { list-style: none; }
 
 .question-phase.done { opacity: 0; visibility: hidden; }
 
-.question-item {
+/* Fallback (mobile / reduced-motion / no-WebGL): every scene stacked
+   dead-center, only .active visible — the webgl-hero corner layout below
+   overrides this for the desktop scroll-driven hero. */
+.question-scene {
+    position: absolute;
+    inset: 0;
     display: flex;
-    align-items: baseline;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    gap: 14px;
-    flex-wrap: wrap;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.question-scene.active { opacity: 1; }
+
+.q-heading {
     font-family: var(--font-heading);
     font-size: clamp(1.8rem, 5vw, 3.4rem);
-    font-weight: 600;
-}
-
-.q-prefix { color: var(--text-light); font-style: italic; }
-
-.q-word {
-    color: var(--primary-dark);
     font-weight: 700;
-    position: relative;
-    transition: opacity 0.4s ease, transform 0.4s ease;
+    color: var(--primary-dark);
 }
 
-.q-word.swap { opacity: 0; transform: translateY(-12px); }
+.q-support {
+    display: none;
+    font-family: var(--font-body);
+    color: var(--text-light);
+    margin-top: 10px;
+}
 
 /* Phase 2: reveal */
 .reveal-phase {
@@ -2125,6 +2134,183 @@ ul  { list-style: none; }
 @keyframes scrollWheel {
     0%   { transform: translateY(0); opacity: 1; }
     100% { transform: translateY(12px); opacity: 0; }
+}
+
+/* ========== HERO WEBGL (sacred-geometry centerpiece) ========== */
+/* Default state: WebGL disabled — .hero-wrap collapses to its content height and
+   .hero behaves exactly as before. js/hero-webgl.js adds body.webgl-hero only on
+   desktop, WebGL-capable, non-reduced-motion contexts. */
+.hero-wrap {
+    position: relative;
+    overflow: visible;
+}
+
+.hero-webgl-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.4s ease;
+}
+
+body.webgl-hero .hero-wrap {
+    height: 200vh;
+}
+
+body.webgl-hero .hero {
+    position: sticky;
+    top: 0;
+}
+
+body.webgl-hero .hero-webgl-canvas {
+    opacity: 1;
+}
+
+body.webgl-hero .hero-canvas,
+body.webgl-hero .orb,
+body.webgl-hero .hero-mandala-bg {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Per-letter blur-up reveal for the brand name, layered on top of the existing
+   .reveal-phase.show fade — only built when WebGL is enabled (see hero-webgl.js). */
+.hero-brand-name .word-group {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.hero-brand-name .char {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(50px);
+    filter: blur(12px);
+    transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+                transform 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+                filter 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.reveal-phase.show .hero-brand-name .char {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+}
+
+/* Soft light scrim behind the hero text stack so headline/tagline stay legible
+   over the busy WebGL centerpiece (the 2D fallback doesn't need this — its
+   backdrop is calmer, so this is scoped to the WebGL variant only). */
+body.webgl-hero .hero-stage {
+    position: relative;
+}
+
+body.webgl-hero .hero-stage::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 130%;
+    height: 130%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(ellipse at center,
+        rgba(253, 244, 235, 0.6) 0%,
+        rgba(253, 244, 235, 0.32) 45%,
+        rgba(253, 244, 235, 0) 72%);
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Soft cream halo around the text itself (on top of the scrim above) so
+   letters stay readable even where a dark facet of the centerpiece passes
+   directly behind them. */
+body.webgl-hero .hero-welcome-line,
+body.webgl-hero .hero-brand-name,
+body.webgl-hero .hero-tagline-reveal,
+body.webgl-hero .hero-sub-reveal,
+body.webgl-hero .q-heading,
+body.webgl-hero .q-support {
+    text-shadow: 0 0 14px rgba(253, 244, 235, 0.95),
+                 0 0 28px rgba(253, 244, 235, 0.8),
+                 0 0 46px rgba(253, 244, 235, 0.6);
+}
+
+/* Question scenes scattered to alternating corners as the user scrolls the
+   pinned hero (js/main.js toggles .active per scroll slot). Fallback below
+   (outside body.webgl-hero) keeps every scene stacked dead-center, matching
+   the pre-corner-redesign look, for mobile/reduced-motion/no-WebGL. */
+/* Fixed (not absolute) so corners are anchored to the actual viewport edges,
+   not to .hero-stage's constrained 900px content box — .hero is sticky-pinned
+   to the viewport for the scroll duration, so this stays put correctly and
+   .question-phase.done (opacity:0 + visibility:hidden) hides it once past. */
+body.webgl-hero .question-phase { position: fixed; inset: 0; }
+
+body.webgl-hero .question-scene {
+    position: absolute;
+    /* Reset the base .question-scene's `inset: 0` (left/right/top/bottom all
+       0) — otherwise a leftover `left: 0` or `bottom: 0` out-specifies the
+       single side each corner rule below actually wants to set, and the box
+       ends up stretched/pinned to the wrong edge. */
+    inset: auto;
+    max-width: 420px;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+    pointer-events: none;
+}
+
+body.webgl-hero .question-scene.active { opacity: 1; transform: translateY(0); }
+
+body.webgl-hero .question-scene[data-corner="tl"] { top: 14%; left: 6%; text-align: left; }
+body.webgl-hero .question-scene[data-corner="tr"] { top: 14%; right: 6%; text-align: right; }
+body.webgl-hero .question-scene[data-corner="bl"] { bottom: 16%; left: 6%; text-align: left; }
+body.webgl-hero .question-scene[data-corner="br"] { bottom: 16%; right: 6%; text-align: right; }
+body.webgl-hero .question-scene[data-corner="center"] {
+    top: 50%;
+    left: 50%;
+    text-align: center;
+    transform: translate(-50%, calc(-50% + 16px));
+}
+body.webgl-hero .question-scene[data-corner="center"].active { transform: translate(-50%, -50%); }
+
+body.webgl-hero .q-heading {
+    font-family: var(--font-heading);
+    font-size: clamp(2.2rem, 4.2vw, 3.6rem);
+    font-weight: 700;
+    line-height: 1.05;
+    color: var(--primary-dark);
+    margin-bottom: 10px;
+}
+
+body.webgl-hero .q-support {
+    display: block;
+    font-family: var(--font-body);
+    font-size: clamp(0.9rem, 1.3vw, 1.05rem);
+    color: var(--text-light);
+    max-width: 300px;
+}
+
+body.webgl-hero .question-scene[data-corner="tr"] .q-support,
+body.webgl-hero .question-scene[data-corner="br"] .q-support { margin-left: auto; }
+
+@media (max-width: 1024px) {
+    body.webgl-hero .question-scene { max-width: 300px; }
+    body.webgl-hero .question-scene[data-corner="tl"],
+    body.webgl-hero .question-scene[data-corner="bl"] { left: 4%; }
+    body.webgl-hero .question-scene[data-corner="tr"],
+    body.webgl-hero .question-scene[data-corner="br"] { right: 4%; }
+}
+
+/* Safety net: never let the tall pinned wrapper apply on small screens even if
+   the enablement check in JS were ever bypassed. */
+@media (max-width: 768px) {
+    body.webgl-hero .hero-wrap { height: auto; }
+    body.webgl-hero .hero { position: relative; }
+    body.webgl-hero .hero-webgl-canvas { opacity: 0; }
+    body.webgl-hero .hero-canvas,
+    body.webgl-hero .orb,
+    body.webgl-hero .hero-mandala-bg { opacity: 1; visibility: visible; }
 }
 
 /* ========== HOOK SECTION ========== */
@@ -2813,7 +2999,7 @@ ul  { list-style: none; }
     .accord-body-inner { padding: 0 20px 26px 20px; }
     .about-floating-quote { position: static; max-width: none; margin-top: 20px; }
     .hero-brand-name { letter-spacing: 1px; }
-    .question-item { font-size: clamp(1.5rem, 7vw, 2.4rem); }
+    .q-heading { font-size: clamp(1.5rem, 7vw, 2.4rem); }
 }
 
 @media (max-width: 480px) {
