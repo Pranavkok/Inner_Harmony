@@ -2156,6 +2156,24 @@ ul  { list-style: none; }
     transition: opacity 1.4s ease;
 }
 
+/* Full-page butterfly companion: a transparent fixed overlay that floats above
+   every section (z below the navbar's 1000) so the butterfly can accompany you
+   down the whole site. Only revealed when the WebGL hero is active (desktop). */
+.guide-webgl-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 940;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.4s ease;
+}
+
+body.webgl-hero .guide-webgl-canvas {
+    opacity: 1;
+}
+
 body.webgl-hero .hero-wrap {
     height: 200vh;
 }
