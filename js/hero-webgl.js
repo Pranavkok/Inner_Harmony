@@ -224,6 +224,126 @@ function updateGlitter(g, deltaTime, time) {
 }
 
 // ========================================
+// JAPANESE GARDEN — scroll-driven cinematic background
+// Replaces the liquid-silk shader as the hero backdrop. The whole garden is
+// normalized to a fixed size centred on the origin, and a single camera dollies
+// from a wide establishing shot (scroll = 0) down into an intimate teahouse-
+// across-the-pond close-up (scroll = 1) as you scroll the pinned hero.
+// ========================================
+
+const GARDEN_URL = 'japanese_garden.glb';
+const GARDEN_TARGET_SIZE = 10;   // largest garden dimension in world units after scaling
+
+// Camera keyframes in the normalized garden space (see loadGarden: garden is
+// centred on origin, Y-up, teahouse toward -X/-Z, entrance gate toward +Z).
+// pos = camera position, look = point it aims at, fov = vertical field of view.
+// Tweak these to re-frame the opening/closing shots without touching the maths.
+// Cinematic scroll fly-through, sampled along a Catmull-Rom spline through these
+// keyframes (normalized garden space; the moon-gate hole is centred at
+// (0.90, -0.47, 3.29) with radius ~0.33, facing +Z). The path frames the gate,
+// passes THROUGH the opening, rises above the wall, and settles into an aerial view.
+const GARDEN_CAM = {
+    fov: [50, 60], // vertical FOV at scroll 0 → 1 (widens for the aerial reveal)
+    keys: [
+        { pos: [0.90, -0.42, 4.75], look: [0.86, -0.47, -1.6] }, // outside — framed in the moon gate
+        { pos: [0.86, -0.30, 2.70], look: [0.25, -0.32, -2.6] }, // just through the opening, inside
+        { pos: [0.22,  3.00, 3.60], look: [-0.05, -0.55, -1.2] }, // rising over the wall
+        { pos: [0.00,  6.90, 4.20], look: [0.00, -0.65, -0.6] }, // aerial overview
+    ],
+};
+
+// Smoothstep 0..1 — eases the fly-through so it accelerates and settles softly.
+function smooth01(x) {
+    x = Math.min(1, Math.max(0, x));
+    return x * x * (3 - 2 * x);
+}
+
+// Catmull-Rom interpolation of one scalar across four control points.
+function catmull1(a, b, c, d, t) {
+    const t2 = t * t, t3 = t2 * t;
+    return 0.5 * ((2 * b) + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t2 + (-a + 3 * b - 3 * c + d) * t3);
+}
+
+// Sample a smooth [x,y,z] point along an array of keyframe vectors at t in [0,1].
+function samplePath(keys, t) {
+    const n = keys.length;
+    const f = t * (n - 1);
+    let seg = Math.floor(f);
+    if (seg > n - 2) seg = n - 2;
+    if (seg < 0) seg = 0;
+    const lt = f - seg;
+    const P = (i) => keys[Math.max(0, Math.min(n - 1, i))];
+    const p0 = P(seg - 1), p1 = P(seg), p2 = P(seg + 1), p3 = P(seg + 2);
+    return [
+        catmull1(p0[0], p1[0], p2[0], p3[0], lt),
+        catmull1(p0[1], p1[1], p2[1], p3[1], lt),
+        catmull1(p0[2], p1[2], p2[2], p3[2], lt),
+    ];
+}
+
+// Load the static Japanese-garden GLB, normalize it (recenter + scale to
+// GARDEN_TARGET_SIZE), and return the group plus a setReveal(k) that fades every
+// material in from 0→1 for a graceful appearance once the 32MB download lands.
+async function loadGarden(THREE) {
+    const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
+    const gltf = await new GLTFLoader().loadAsync(GARDEN_URL);
+    const model = gltf.scene;
+
+    // Normalize on the model's world-space bounding box.
+    const box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z) || 1;
+    const scale = GARDEN_TARGET_SIZE / maxDim;
+
+    const group = new THREE.Group();
+    group.add(model);
+    group.scale.setScalar(scale);
+    // Recenter horizontally on the garden, and drop the base of the model to a
+    // consistent ground line so the camera keyframes stay predictable.
+    group.position.set(
+        -center.x * scale,
+        -center.y * scale,
+        -center.z * scale
+    );
+
+    // Remember each material's authored opacity/transparency so the reveal fade
+    // can restore water/glass/cherry alpha exactly once it finishes.
+    const mats = [];
+    model.traverse((obj) => {
+        if (obj.isMesh) {
+            obj.frustumCulled = true;
+            const list = Array.isArray(obj.material) ? obj.material : [obj.material];
+            list.forEach((m) => {
+                if (m && !m.userData._revInit) {
+                    m.userData._revInit = true;
+                    m.userData._op = m.opacity;
+                    m.userData._transparent = m.transparent;
+                    mats.push(m);
+                }
+            });
+        }
+    });
+
+    function setReveal(k) {
+        const done = k >= 1;
+        for (const m of mats) {
+            if (done) {
+                m.opacity = m.userData._op;
+                m.transparent = m.userData._transparent;
+            } else {
+                m.transparent = true;
+                m.opacity = m.userData._op * k;
+            }
+            m.needsUpdate = false;
+        }
+    }
+    setReveal(0);
+
+    return { group, setReveal };
+}
+
+// ========================================
 // BUTTERFLY
 // ========================================
 
@@ -448,25 +568,18 @@ async function init() {
         const pixelRatio = () => Math.min(window.devicePixelRatio, 2);
 
         // ============================================================
-        // HERO SCENE — the liquid-silk background + light motes. Lives inside the
-        // hero's own canvas (confined to the hero region) and pauses when scrolled
-        // past. The butterfly is NOT here anymore; it rides the guide overlay.
+        // HERO SCENE — the Japanese-garden backdrop with a scroll-driven camera
+        // dolly. Lives inside the hero's own canvas (confined to the hero region)
+        // and pauses when scrolled past. The butterfly rides the guide overlay.
         // ============================================================
         const heroScene = new THREE.Scene();
-        heroScene.background = new THREE.Color('#fdf4eb');
-        heroScene.fog = new THREE.FogExp2('#fdf4eb', 0.05);
+        heroScene.background = new THREE.Color('#cfe4f2'); // soft daylight sky
+        heroScene.fog = new THREE.Fog('#dfeaf0', 14, 30);
 
-        const heroCamera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
-        heroCamera.position.set(0, 0.3, 3.9);
+        const heroCamera = new THREE.PerspectiveCamera(GARDEN_CAM.fov[0], width / height, 0.1, 200);
+        heroCamera.position.set(...GARDEN_CAM.keys[0].pos);
+        heroCamera.lookAt(...GARDEN_CAM.keys[0].look);
         heroScene.add(heroCamera);
-
-        const shaderUniforms = {
-            uTime: { value: 0 },
-            uResolution: { value: new THREE.Vector2(width, height) },
-            uMouse: { value: new THREE.Vector2(0, 0) },
-            uScroll: { value: 0 },
-        };
-        createBackgroundShader(THREE, heroCamera, shaderUniforms);
 
         const heroRenderer = new THREE.WebGLRenderer({
             canvas: heroCanvas,
@@ -476,10 +589,30 @@ async function init() {
         });
         heroRenderer.setSize(width, height);
         heroRenderer.setPixelRatio(pixelRatio());
+        heroRenderer.outputColorSpace = THREE.SRGBColorSpace;
+        heroRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+        heroRenderer.toneMappingExposure = 1.05;
 
-        const sparkCount = 240;
-        const sparkData = [];
-        const sparkParticles = createSparks(THREE, heroScene, sparkCount, sparkData);
+        // Daylight rig for the garden: warm key sun + cool sky fill + gentle rim.
+        heroScene.add(new THREE.HemisphereLight('#eaf4ff', '#c8b89a', 1.15));
+        const sun = new THREE.DirectionalLight('#fff3dc', 2.4);
+        sun.position.set(6, 9, 4);
+        heroScene.add(sun);
+        const skyFill = new THREE.DirectionalLight('#bcd6f0', 0.7);
+        skyFill.position.set(-5, 3, -4);
+        heroScene.add(skyFill);
+
+        // Load the garden asynchronously; the hero shows the sky/fog until it lands,
+        // then materials fade in over ~1.1s (revealK) for a graceful appearance.
+        let garden = null;
+        let revealK = 0;
+        loadGarden(THREE).then((g) => {
+            garden = g;
+            heroScene.add(g.group);
+            heroWrap.classList.add('garden-ready');
+        }).catch((err) => {
+            console.error('Hero WebGL: garden model failed to load.', err);
+        });
 
         // ============================================================
         // GUIDE SCENE — the butterfly companion on a transparent, full-viewport
@@ -572,7 +705,6 @@ async function init() {
             guideCamera.updateProjectionMatrix();
             guideRenderer.setSize(width, height);
             guideRenderer.setPixelRatio(pixelRatio());
-            shaderUniforms.uResolution.value.set(width, height);
         }
         window.addEventListener('resize', onResize);
 
@@ -623,6 +755,11 @@ async function init() {
         }
 
         const clock = new THREE.Clock();
+
+        // Garden fly-through keyframes (position + look-at), sampled along a spline.
+        const gPosKeys = GARDEN_CAM.keys.map((k) => k.pos);
+        const gLookKeys = GARDEN_CAM.keys.map((k) => k.look);
+
         const bfPos = new THREE.Vector3().copy(cornerPos('tr')); // start top-right
         const bfTarget = new THREE.Vector3();
         let prevBfX = bfPos.x;
@@ -743,38 +880,43 @@ async function init() {
             butterfly.group.rotation.x = MODEL_BASE_PITCH + Math.sin(t * 0.5) * 0.045 + mouseY * 0.12;
             butterfly.group.rotation.y = mouseX * 0.22 + Math.sin(t * 0.33) * 0.05;
 
-            // --- A very light dusting of glitter falls from the wings while moving.
-            if (!exiting && (roaming || travel > 0.25) && Math.random() < 0.14) {
-                spawnGlitter(
-                    glitter,
-                    butterfly.group.position.x,
-                    butterfly.group.position.y - 0.04,
-                    butterfly.group.position.z
-                );
-            }
+            // Glitter trail from the wings disabled (read as stray dark specks
+            // over light sections). Keep updateGlitter so any in-flight sparks fade.
             updateGlitter(glitter, deltaTime, t);
 
             // Render the always-on butterfly overlay every frame.
             guideRenderer.render(guideScene, guideCamera);
 
-            // --- Hero background: only update/render while it's on screen. ---
+            // --- Garden background: only update/render while it's on screen. The
+            // camera dollies from the wide establishing shot into the teahouse
+            // close-up as the pinned hero scrolls its 100vh of travel. ---
             if (heroVisible) {
                 const targetScroll = getHeroScrollProgress();
                 currentScroll += (targetScroll - currentScroll) * 0.08;
+                const e = smooth01(currentScroll);
 
-                updateSparks(
-                    sparkParticles, sparkData, sparkCount, deltaTime, clock.elapsedTime,
-                    Math.abs(targetScroll - currentScroll)
+                // Sample the fly-through spline, then add a gentle mouse parallax + idle drift.
+                const p = samplePath(gPosKeys, e);
+                const l = samplePath(gLookKeys, e);
+                heroCamera.position.set(
+                    p[0] + mouseX * 0.10,
+                    p[1] - mouseY * 0.07 + Math.sin(clock.elapsedTime * 0.25) * 0.03,
+                    p[2]
                 );
+                heroCamera.lookAt(l[0], l[1], l[2]);
 
-                heroCamera.position.x += ((mouseX * 0.22) - heroCamera.position.x) * 0.04;
-                heroCamera.position.y += ((0.3 + mouseY * 0.12) - heroCamera.position.y) * 0.04;
-                heroCamera.position.z += ((3.9 - currentScroll * 0.5) - heroCamera.position.z) * 0.04;
-                heroCamera.lookAt(0, 0, 0);
+                // Widen the field of view slightly as the camera rises for the aerial reveal.
+                const fov = GARDEN_CAM.fov[0] + (GARDEN_CAM.fov[1] - GARDEN_CAM.fov[0]) * e;
+                if (Math.abs(heroCamera.fov - fov) > 0.02) {
+                    heroCamera.fov = fov;
+                    heroCamera.updateProjectionMatrix();
+                }
 
-                shaderUniforms.uTime.value = clock.elapsedTime;
-                shaderUniforms.uMouse.value.set(mouseX, -mouseY);
-                shaderUniforms.uScroll.value = currentScroll;
+                // Fade the garden materials in once the model has loaded.
+                if (garden && revealK < 1) {
+                    revealK = Math.min(1, revealK + deltaTime / 1.1);
+                    garden.setReveal(revealK);
+                }
 
                 heroRenderer.render(heroScene, heroCamera);
             }
