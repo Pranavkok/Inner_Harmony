@@ -203,10 +203,18 @@ function updateGlitter(g, deltaTime, time) {
     for (let i = 0; i < g.maxCount; i++) {
         const d = g.data[i];
         if (d.life <= 0) {
+            // Park the dead particle far offscreen so it is never rendered.
+            pos.setXYZ(i, 9999, 9999, 9999);
             col.setXYZ(i, 0, 0, 0);
             continue;
         }
         d.life -= deltaTime / d.maxLife;
+        if (d.life <= 0) {
+            // Just expired this frame — park it immediately.
+            pos.setXYZ(i, 9999, 9999, 9999);
+            col.setXYZ(i, 0, 0, 0);
+            continue;
+        }
         d.vy -= 0.08 * deltaTime; // slight gravity
         pos.setXYZ(
             i,
@@ -576,12 +584,17 @@ async function init() {
         }
         window.addEventListener('resize', onResize);
 
-        // Pause the hero background render once it has scrolled out of view (the
-        // guide overlay keeps rendering so the butterfly follows you down).
+        // Pause the hero background render once it has scrolled out of view.
+        // Also hide the butterfly guide overlay — the butterfly only lives in
+        // the hero section.
         let heroVisible = true;
         if ('IntersectionObserver' in window) {
             new IntersectionObserver((entries) => {
-                entries.forEach((entry) => { heroVisible = entry.isIntersecting; });
+                entries.forEach((entry) => {
+                    heroVisible = entry.isIntersecting;
+                    // Show/hide the butterfly overlay with the hero section.
+                    guideCanvas.style.visibility = heroVisible ? 'visible' : 'hidden';
+                });
             }, { threshold: 0 }).observe(heroWrap);
         }
 
