@@ -585,15 +585,13 @@ async function init() {
         window.addEventListener('resize', onResize);
 
         // Pause the hero background render once it has scrolled out of view.
-        // Also hide the butterfly guide overlay — the butterfly only lives in
-        // the hero section.
+        // The butterfly canvas lives inside hero-wrap, so it is automatically
+        // clipped to the hero section — no manual show/hide needed.
         let heroVisible = true;
         if ('IntersectionObserver' in window) {
             new IntersectionObserver((entries) => {
                 entries.forEach((entry) => {
                     heroVisible = entry.isIntersecting;
-                    // Show/hide the butterfly overlay with the hero section.
-                    guideCanvas.style.visibility = heroVisible ? 'visible' : 'hidden';
                 });
             }, { threshold: 0 }).observe(heroWrap);
         }

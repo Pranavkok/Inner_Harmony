@@ -2142,7 +2142,7 @@ ul  { list-style: none; }
    desktop, WebGL-capable, non-reduced-motion contexts. */
 .hero-wrap {
     position: relative;
-    overflow: visible;
+    overflow: clip; /* prevent butterfly canvas bleeding outside; 'clip' (not 'hidden') preserves sticky */
 }
 
 .hero-webgl-canvas {
@@ -2156,14 +2156,17 @@ ul  { list-style: none; }
     transition: opacity 1.4s ease;
 }
 
-/* Full-page butterfly companion: a transparent fixed overlay that floats above
-   every section (z below the navbar's 1000) so the butterfly can accompany you
-   down the whole site. Only revealed when the WebGL hero is active (desktop). */
+/* Butterfly companion canvas: lives inside hero-wrap so it is naturally
+   clipped to the hero section and can never escape it. It uses sticky
+   positioning so it covers the full viewport while the hero is pinned. */
 .guide-webgl-canvas {
-    position: fixed;
-    inset: 0;
+    position: sticky;
+    top: 0;
+    left: 0;
+    display: block;
     width: 100%;
-    height: 100%;
+    height: 100vh;
+    margin-bottom: -100vh; /* pull subsequent content back up */
     z-index: 940;
     pointer-events: none;
     opacity: 0;

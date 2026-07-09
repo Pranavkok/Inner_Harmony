@@ -43,9 +43,7 @@
         <div class="loader-bar"></div>
     </div>
 
-    <!-- Full-page butterfly companion overlay: a transparent fixed canvas above the
-         page sections (below the navbar). Populated by js/hero-webgl.js on desktop. -->
-    <canvas class="guide-webgl-canvas" id="guide-webgl"></canvas>
+
 
     <!-- ========== NAVIGATION ========== -->
     <nav class="navbar" id="navbar">
@@ -86,6 +84,8 @@
 
     <!-- ========== HERO — CINEMATIC SEQUENCE ========== -->
     <div class="hero-wrap" id="heroWrap">
+    <!-- Butterfly companion overlay: confined to hero-wrap so it never escapes the hero section -->
+    <canvas class="guide-webgl-canvas" id="guide-webgl"></canvas>
     <section class="hero" id="hero">
         <!-- WebGL sacred-geometry centerpiece (desktop, WebGL-capable, no reduced-motion only) -->
         <canvas class="hero-webgl-canvas" id="hero-webgl"></canvas>
