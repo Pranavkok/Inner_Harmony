@@ -10,9 +10,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=5">
+    <link rel="stylesheet" href="css/style.css?v=6">
     <script type="importmap">
     {
         "imports": {
@@ -33,7 +33,7 @@
     <div class="page-loader" id="pageLoader">
         <div class="loader-content">
             <div class="loader-mandala">
-                <img src="mandala_nobg.png" alt="Inner Harmony">
+                <!-- Removed mandala for cartoon theme -->
             </div>
             <div class="loader-text">
 
@@ -84,7 +84,7 @@
 
     <!-- ========== HERO — CINEMATIC SEQUENCE ========== -->
     <div class="hero-wrap" id="heroWrap">
-    <!-- Butterfly companion overlay: confined to hero-wrap so it never escapes the hero section -->
+    <!-- Hero WebGL Canvas -->
     <canvas class="guide-webgl-canvas" id="guide-webgl"></canvas>
     <section class="hero" id="hero">
         <!-- WebGL sacred-geometry centerpiece (desktop, WebGL-capable, no reduced-motion only) -->
@@ -98,9 +98,8 @@
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
 
-        <!-- Rotating mandala backdrop (fallback) -->
+        <!-- Rotating mandala backdrop (fallback) removed for cartoon theme -->
         <div class="hero-mandala-bg" id="heroMandala">
-            <img src="mandala_nobg.png" alt="">
         </div>
 
         <!-- Cinematic text sequence -->
@@ -270,7 +269,7 @@
                 <div class="about-image-col">
                     <div class="about-image-frame">
                         <div class="about-img-placeholder">
-                            <img src="mandala_nobg.png" alt="Dr. Gargee Gadgil" class="about-mandala-art">
+                            <!-- Removed mandala from about section -->
                             <div class="about-img-overlay">
                                 <span class="about-name-over">Dr. Gargee Gadgil</span>
                             </div>
@@ -341,10 +340,10 @@
             <div class="services-visual-grid">
 
                 <div class="svc-card" id="scParenting" data-href="#parenting-assessment">
-                    <div class="svc-card-bg" style="--svc-color: #f0c8c4;"></div>
+                    <div class="svc-card-bg" style="--svc-color: #a7f3d0;"></div>
                     <div class="svc-card-content">
                         <div class="svc-icon">
-                            <img src="card_parenting.jpg" alt="Parenting Assessment" class="svc-img"
+                            <img src="card_parenting.jpg?v=6" alt="Parenting Assessment" class="svc-img"
                                 style="object-fit: cover; width: 100%; height: 100%;">
                         </div>
                         <div class="svc-number">01</div>
@@ -360,10 +359,10 @@
                 </div>
 
                 <div class="svc-card" id="scDmit" data-href="#dmit">
-                    <div class="svc-card-bg" style="--svc-color: #edd8ca;"></div>
+                    <div class="svc-card-bg" style="--svc-color: #fef08a;"></div>
                     <div class="svc-card-content">
                         <div class="svc-icon">
-                            <img src="card_dmit.jpg" alt="DMIT Blueprint" class="svc-img" style="object-fit: cover; width: 100%; height: 100%;">
+                            <img src="card_dmit.jpg?v=6" alt="DMIT Blueprint" class="svc-img" style="object-fit: cover; width: 100%; height: 100%;">
                         </div>
                         <div class="svc-number">02</div>
                         <h3>DMIT Blueprint</h3>
@@ -378,10 +377,10 @@
                 </div>
 
                 <div class="svc-card" id="scTarot" data-href="#tarot">
-                    <div class="svc-card-bg" style="--svc-color: #fcdbd8;"></div>
+                    <div class="svc-card-bg" style="--svc-color: #bae6fd;"></div>
                     <div class="svc-card-content">
                         <div class="svc-icon">
-                            <img src="card_tarot.jpg" alt="Tarot Healing" class="svc-img" style="object-fit: cover; width: 100%; height: 100%;">
+                            <img src="card_tarot.jpg?v=6" alt="Tarot Healing" class="svc-img" style="object-fit: cover; width: 100%; height: 100%;">
                         </div>
                         <div class="svc-number">03</div>
                         <h3>Tarot Healing</h3>
@@ -396,10 +395,10 @@
                 </div>
 
                 <div class="svc-card" id="scReiki" data-href="#reiki">
-                    <div class="svc-card-bg" style="--svc-color: #ffeed0;"></div>
+                    <div class="svc-card-bg" style="--svc-color: #fbcfe8;"></div>
                     <div class="svc-card-content">
                         <div class="svc-icon">
-                            <img src="card_reiki.jpg" alt="Reiki Healing" class="svc-img" style="object-fit: cover; width: 100%; height: 100%;">
+                            <img src="card_reiki.jpg?v=6" alt="Reiki Healing" class="svc-img" style="object-fit: cover; width: 100%; height: 100%;">
                         </div>
                         <div class="svc-number">04</div>
                         <h3>Reiki Healing</h3>
@@ -414,10 +413,10 @@
                 </div>
 
                 <div class="svc-card" id="scParentProg" data-href="#parenting">
-                    <div class="svc-card-bg" style="--svc-color: #f5d5d0;"></div>
+                    <div class="svc-card-bg" style="--svc-color: #ddd6fe;"></div>
                     <div class="svc-card-content">
                         <div class="svc-icon">
-                            <img src="card_empowered_parenting.jpg" alt="Empowered Parenting" class="svc-img" style="object-fit: cover; width: 100%; height: 100%;">
+                            <img src="card_empowered_parenting.jpg?v=6" alt="Empowered Parenting" class="svc-img" style="object-fit: cover; width: 100%; height: 100%;">
                         </div>
                         <div class="svc-number">05</div>
                         <h3>Empowered Parenting</h3>
@@ -432,10 +431,10 @@
                 </div>
 
                 <div class="svc-card" id="scCareer" data-href="#career">
-                    <div class="svc-card-bg" style="--svc-color: #ecd8ca;"></div>
+                    <div class="svc-card-bg" style="--svc-color: #fed7aa;"></div>
                     <div class="svc-card-content">
                         <div class="svc-icon">
-                            <img src="card_career_compass.jpg" alt="Career Compass" class="svc-img" style="object-fit: cover; width: 100%; height: 100%;">
+                            <img src="card_career_compass.jpg?v=6" alt="Career Compass" class="svc-img" style="object-fit: cover; width: 100%; height: 100%;">
                         </div>
                         <div class="svc-number">06</div>
                         <h3>Career Compass</h3>
@@ -459,8 +458,8 @@
         <div class="philosophy-bg"></div>
         <div class="container">
             <div class="philosophy-inner">
-                <div class="philosophy-mandala">
-                    <img src="mandala_nobg.png" alt="" id="philoMandala">
+                                <div class="philosophy-mandala">
+                    <img src="card_philosophy.jpg" alt="Inner Wisdom" style="width: 100%; max-width: 400px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);" />
                 </div>
                 <div class="philosophy-text">
                     <span class="section-label">The Inner Harmony Way</span>

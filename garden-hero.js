@@ -243,12 +243,12 @@ const GARDEN_TARGET_SIZE = 10;   // largest garden dimension in world units afte
 // (0.90, -0.47, 3.29) with radius ~0.33, facing +Z). The path frames the gate,
 // passes THROUGH the opening, rises above the wall, and settles into an aerial view.
 const GARDEN_CAM = {
-    fov: [50, 50], // constant FOV to keep it intimate
+    fov: [50, 60], // vertical FOV at scroll 0 → 1 (widens for the aerial reveal)
     keys: [
         { pos: [0.90, -0.42, 4.75], look: [0.86, -0.47, -1.6] }, // outside — framed in the moon gate
         { pos: [0.86, -0.30, 2.70], look: [0.25, -0.32, -2.6] }, // just through the opening, inside
-        { pos: [0.50, -0.20, 1.50], look: [-0.30, -0.30, -1.5] }, // moving deeper inside, panning
-        { pos: [0.80, -0.10, 0.20], look: [-1.20, -0.20, -1.0] }, // resting in the corner looking across the interior
+        { pos: [0.22,  3.00, 3.60], look: [-0.05, -0.55, -1.2] }, // rising over the wall
+        { pos: [0.00,  6.90, 4.20], look: [0.00, -0.65, -0.6] }, // aerial overview
     ],
 };
 
@@ -572,9 +572,9 @@ async function init() {
         // dolly. Lives inside the hero's own canvas (confined to the hero region)
         // and pauses when scrolled past. The butterfly rides the guide overlay.
         // ============================================================
-                const heroScene = new THREE.Scene();
-        heroScene.background = new THREE.Color('#e0f2fe'); // Bright sky blue
-        heroScene.fog = new THREE.Fog('#e0f2fe', 14, 30);
+        const heroScene = new THREE.Scene();
+        heroScene.background = new THREE.Color('#cfe4f2'); // soft daylight sky
+        heroScene.fog = new THREE.Fog('#dfeaf0', 14, 30);
 
         const heroCamera = new THREE.PerspectiveCamera(GARDEN_CAM.fov[0], width / height, 0.1, 200);
         heroCamera.position.set(...GARDEN_CAM.keys[0].pos);
@@ -591,17 +591,16 @@ async function init() {
         heroRenderer.setPixelRatio(pixelRatio());
         heroRenderer.outputColorSpace = THREE.SRGBColorSpace;
         heroRenderer.toneMapping = THREE.ACESFilmicToneMapping;
-        heroRenderer.toneMappingExposure = 1.35; // Brighter for cartoon vibe
+        heroRenderer.toneMappingExposure = 1.05;
 
-        // Daylight rig for the garden: bright cartoonish lighting.
-        heroScene.add(new THREE.HemisphereLight('#ffffff', '#4ade80', 1.5));
-        const sun = new THREE.DirectionalLight('#fff9e6', 3.0);
+        // Daylight rig for the garden: warm key sun + cool sky fill + gentle rim.
+        heroScene.add(new THREE.HemisphereLight('#eaf4ff', '#c8b89a', 1.15));
+        const sun = new THREE.DirectionalLight('#fff3dc', 2.4);
         sun.position.set(6, 9, 4);
         heroScene.add(sun);
-        const skyFill = new THREE.DirectionalLight('#e0f2fe', 1.0);
+        const skyFill = new THREE.DirectionalLight('#bcd6f0', 0.7);
         skyFill.position.set(-5, 3, -4);
         heroScene.add(skyFill);
-
 
         // Load the garden asynchronously; the hero shows the sky/fog until it lands,
         // then materials fade in over ~1.1s (revealK) for a graceful appearance.
@@ -638,15 +637,16 @@ async function init() {
         guideRenderer.toneMapping = THREE.ACESFilmicToneMapping;
         guideRenderer.toneMappingExposure = 1.15;
 
-                // Warm, bright cartoon lighting for the butterfly
-        guideScene.add(new THREE.AmbientLight('#ffffff', 1.2));
-        const keyLight = new THREE.DirectionalLight('#ffffff', 3.5);
+        // Warm, soft lighting for the butterfly (no shadows — nothing to catch them
+        // on a transparent overlay, and it keeps the always-on scene cheap).
+        guideScene.add(new THREE.AmbientLight('#fff6ea', 0.9));
+        const keyLight = new THREE.DirectionalLight('#fff1d6', 3.0);
         keyLight.position.set(3, 4, 3);
         guideScene.add(keyLight);
-        const rimLight = new THREE.DirectionalLight('#f9a8d4', 2.5); // pink rim
+        const rimLight = new THREE.DirectionalLight('#e8b9c2', 2.0);
         rimLight.position.set(-3, 2, -3);
         guideScene.add(rimLight);
-        const fillLight = new THREE.DirectionalLight('#fde047', 1.5); // yellow fill
+        const fillLight = new THREE.DirectionalLight('#fff3e6', 1.0);
         fillLight.position.set(-1.5, -2, 1.5);
         guideScene.add(fillLight);
 
