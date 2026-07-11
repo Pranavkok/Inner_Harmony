@@ -102,10 +102,17 @@
         ribbon.style.width = (gp * 100) + '%';
         nav.classList.toggle('scrolled', scrollY > 40);
 
-        // ----- ACT 2: THE BLINK (day -> night) -----
-        let nightAmount = 0;
+        /* ===== SINGLE BACKGROUND STATE MACHINE =====
+           night = 0 (day) .. 1 (night). Computed once, applied once.
+           Ride order: hero(day) → blink(flip→night) → constellation+guide(night)
+                       → sunrise(flip→day) → pullcard/contact(day).            */
+        let night = 0;
+
+        // ----- ACT 2: THE BLINK — flips day → night -----
         if (blinkAct) {
             const p = prog(blinkAct);                 // 0..1 across the pin
+            const inView = blinkAct.getBoundingClientRect();
+
             // orb zooms toward you as you approach the blink
             if (orb) {
                 const s = 1 + Math.pow(clamp(p / 0.45), 2) * 9;   // grows huge
@@ -114,19 +121,15 @@
             }
             if (intro) intro.style.opacity = clamp(1 - p / 0.3);
 
-            // eyelids close between .40 and .52, open .52 -> .64
+            // eyelids close .40 → .52, open .52 → .64
             let lid = 0;
-            if (p > 0.4 && p <= 0.52) lid = (p - 0.4) / 0.12;         // closing
-            else if (p > 0.52 && p < 0.64) lid = 1 - (p - 0.52) / 0.12; // opening
-            else if (p >= 0.64) lid = 0;
-            else lid = 0;
-            const closed = clamp(p >= 0.52 ? 1 : (p > 0.4 ? (p - 0.4) / 0.12 : 0));
-            if (lidTop) lidTop.style.transform = `translateY(${lerp(-102, 0, lid) }%)`;
+            if (p > 0.4 && p <= 0.52) lid = (p - 0.4) / 0.12;
+            else if (p > 0.52 && p < 0.64) lid = 1 - (p - 0.52) / 0.12;
+            if (lidTop) lidTop.style.transform = `translateY(${lerp(-102, 0, lid)}%)`;
             if (lidBot) lidBot.style.transform = `translateY(${lerp(102, 0, lid)}%)`;
 
-            // world flips to night right at the closed moment
-            nightAmount = clamp((p - 0.46) / 0.1);
-            setWorld(nightAmount);
+            // world flips to night at the closed moment
+            night = clamp((p - 0.46) / 0.1);
 
             // reveal night copy after eyes reopen
             if (bReveal) {
@@ -134,15 +137,19 @@
                 bReveal.style.opacity = rp;
                 bReveal.style.transform = `translateY(${lerp(30, 0, rp)}px)`;
             }
+
+            // once we've scrolled PAST the blink section, hold full night
+            if (inView.bottom <= 0) night = 1;
         }
 
-        // Keep it night through the constellation, then flip back at sunrise.
-        // ----- ACT 5: SUNRISE (night -> day) -----
+        // ----- ACT 5: SUNRISE — flips night → day (takes precedence when active) -----
         if (sunriseEl) {
             const r = sunriseEl.getBoundingClientRect();
-            if (r.top < innerHeight && r.bottom > 0) {
+            if (r.bottom <= 0) {
+                night = 0;                              // fully past sunrise → day
+            } else if (r.top < innerHeight) {
                 const p = prog(sunriseEl);
-                setWorld(clamp(1 - p * 1.4));          // night back to day
+                night = clamp(1 - p * 1.4);             // night back to day
                 if (srSun) {
                     srSun.style.transform = `translateX(-50%) translateY(${lerp(20, -60, p)}vh) scale(${lerp(.8,1.3,p)})`;
                     srSun.style.opacity = clamp(p * 1.4);
@@ -151,23 +158,12 @@
                     srCopy.style.opacity = clamp((p - 0.25) / 0.4);
                     srCopy.style.transform = `translateY(${lerp(40, 0, clamp((p-0.25)/0.4))}px)`;
                 }
-            } else if (r.top >= innerHeight) {
-                // before sunrise section: hold night (constellation zone)
-                setWorld(1);
-            } else {
-                // after sunrise: full day
-                setWorld(0);
             }
+            // sunrise still below viewport → leave `night` as blink set it (day at hero, night after blink)
         }
 
-        // nav blend on the dark stretch (blink-closed through constellation)
-        const constEl = $('#constellation');
-        let onNight = nightAmount > 0.5;
-        if (constEl) {
-            const cr = constEl.getBoundingClientRect();
-            if (cr.top < innerHeight * 0.5 && cr.bottom > innerHeight * 0.4) onNight = true;
-        }
-        nav.classList.toggle('on-night', onNight);
+        setWorld(night);
+        nav.classList.toggle('on-night', night > 0.5);
 
         // ----- ACT 4: SIDEWAYS DETOUR -----
         if (sideways && sideRail && panels > 1) {

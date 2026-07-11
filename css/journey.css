@@ -178,16 +178,17 @@ ul{list-style:none;} button{font-family:inherit;cursor:pointer;border:none;backg
 .sideways{background:transparent;}
 .rail{display:flex;height:100vh;align-items:center;will-change:transform;}
 .panel{flex:0 0 100vw;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 8vw;gap:20px;}
-.panel .section-title{max-width:14ch;}
-.panel-hint{font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint);margin-top:14px;}
-.huge-quote{font-family:var(--font-serif);font-weight:320;font-size:clamp(2rem,5.5vw,4rem);line-height:1.18;max-width:16ch;color:var(--ink);}
-.panel-text p{max-width:620px;font-size:1.2rem;color:var(--ink-soft);}
+/* the guide/sideways act sits on the NIGHT background — force light text */
+.sideways .section-title{color:#f3efe9;max-width:14ch;}
+.panel-hint{font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;color:#a7a2bd;margin-top:14px;}
+.huge-quote{font-family:var(--font-serif);font-weight:320;font-size:clamp(2rem,5.5vw,4rem);line-height:1.18;max-width:16ch;color:#f3efe9;}
+.panel-text p{max-width:620px;font-size:1.2rem;color:#d7d3e0;}
 .panel-text p+p{margin-top:20px;}
 .panel-stats{flex-direction:row;gap:70px;flex-wrap:wrap;}
 .stat{display:flex;flex-direction:column;align-items:center;}
-.stat-num{font-family:var(--font-serif);font-size:3.4rem;color:var(--ink);line-height:1;}
-.stat-plus{font-family:var(--font-serif);font-size:1.8rem;color:var(--accent);}
-.stat-label{font-size:.84rem;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-faint);margin-top:10px;}
+.stat-num{font-family:var(--font-serif);font-size:3.4rem;color:#f5f1ea;line-height:1;}
+.stat-plus{font-family:var(--font-serif);font-size:1.8rem;color:var(--accent-2);}
+.stat-label{font-size:.84rem;letter-spacing:.04em;text-transform:uppercase;color:#a7a2bd;margin-top:10px;}
 
 /* ========== ACT 5 · SUNRISE ========== */
 .sunrise{background:transparent;}
