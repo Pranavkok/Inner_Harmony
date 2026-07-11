@@ -4,1006 +4,307 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inner Harmony – Heal Within. Shine Beyond.™ | Dr. Gargee Gadgil</title>
+    <title>Inner Harmony — The Journey Within | Dr. Gargee Gadgil</title>
     <meta name="description"
-        content="Dr. Gargee Gadgil – Physician & Holistic Healer. Parenting assessments, DMIT, tarot-informed healing, Reiki, and career counselling. Heal within, shine beyond.">
+        content="An interactive journey inward with Dr. Gargee Gadgil — physician & holistic healer. Parenting insight, DMIT, tarot-informed healing, Reiki and career clarity.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Instrument+Sans:wght@400;500;600&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=6">
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-        }
-    }
-    </script>
+    <link rel="stylesheet" href="css/journey.css?v=2">
 </head>
 
 <body>
 
-    <!-- ========== CUSTOM CURSOR ========== -->
-    <div class="cursor" id="cursor"></div>
-    <div class="cursor-follower" id="cursorFollower"></div>
+    <!-- Fixed world background (color driven by scroll) -->
+    <div class="world-bg" id="worldBg"></div>
+    <canvas class="dust-canvas" id="dustCanvas"></canvas>
+    <div class="cursor-glow" id="cursorGlow"></div>
 
-    <!-- ========== PAGE LOADER ========== -->
-    <div class="page-loader" id="pageLoader">
-        <div class="loader-content">
-            <div class="loader-mandala">
-                <!-- Removed mandala for cartoon theme -->
-            </div>
-            <div class="loader-text">
-
-                <span class="loader-brand">INNER HARMONY</span>
-            </div>
-        </div>
-        <div class="loader-bar"></div>
+    <!-- Loader -->
+    <div class="loader" id="loader">
+        <div class="loader-ring"></div>
+        <div class="loader-word">breathe in…</div>
     </div>
 
+    <!-- Progress ribbon -->
+    <div class="ribbon"><div class="ribbon-fill" id="ribbonFill"></div></div>
 
-
-    <!-- ========== NAVIGATION ========== -->
-    <nav class="navbar" id="navbar">
-        <div class="nav-container">
-            <a href="#hero" class="nav-logo">
-                <img src="logo_nobg.png" alt="Inner Harmony Logo" class="logo-mark-img">
-                <div class="logo-text-block">
-                    <span class="logo-main">Inner Harmony</span>
-                    <span class="logo-sub">Heal Within. Shine Beyond.™</span>
-                </div>
-            </a>
-            <ul class="nav-links" id="navLinks">
-                <li><a href="#about" class="hover-text" data-text="About">About</a></li>
-                <li><a href="#services" class="hover-text" data-text="Services">Services</a></li>
-                <li><a href="#parenting" class="hover-text" data-text="Parenting">Parenting</a></li>
-                <li><a href="#career" class="hover-text" data-text="Career">Career</a></li>
-                <li><a href="#contact" class="nav-cta">Begin Your Journey</a></li>
-            </ul>
-            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
-                <span></span><span></span><span></span>
-            </button>
-        </div>
+    <!-- Nav -->
+    <nav class="nav" id="nav">
+        <a href="#hero" class="nav-brand">
+            <span class="nav-mark">✦</span>
+            <span class="nav-brand-text">
+                <span class="nav-name">Inner Harmony</span>
+                <span class="nav-tag">Heal within, shine beyond</span>
+            </span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="#blink">Breathe</a></li>
+            <li><a href="#constellation">Offerings</a></li>
+            <li><a href="#guide">The Guide</a></li>
+            <li><a href="#contact" class="nav-cta">Begin</a></li>
+        </ul>
+        <button class="nav-burger" id="navBurger" aria-label="Menu"><span></span><span></span></button>
     </nav>
-
-    <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobileMenu">
-        <div class="mobile-menu-content">
-            <ul class="mobile-nav-links">
-                <li><a href="#about">About</a></li>
-                <li><a href="#services">Services</a></li>
-                <li><a href="#parenting">Parenting</a></li>
-                <li><a href="#career">Career</a></li>
-                <li><a href="#contact">Begin Your Journey</a></li>
-            </ul>
-            <div class="mobile-tagline">Heal Within. Shine Beyond.™</div>
-        </div>
+        <a href="#blink">Breathe</a>
+        <a href="#constellation">Offerings</a>
+        <a href="#guide">The Guide</a>
+        <a href="#pullcard">Pull a card</a>
+        <a href="#contact">Begin</a>
     </div>
 
-    <!-- ========== HERO — CINEMATIC SEQUENCE ========== -->
-    <div class="hero-wrap" id="heroWrap">
-    <!-- Hero WebGL Canvas -->
-    <canvas class="guide-webgl-canvas" id="guide-webgl"></canvas>
-    <section class="hero" id="hero">
-        <!-- WebGL sacred-geometry centerpiece (desktop, WebGL-capable, no reduced-motion only) -->
-        <canvas class="hero-webgl-canvas" id="hero-webgl"></canvas>
+    <main>
 
-        <!-- Canvas for floating particles (fallback: mobile / reduced-motion / no-WebGL) -->
-        <canvas class="hero-canvas" id="heroCanvas"></canvas>
-
-        <!-- Animated gradient orbs (fallback) -->
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
-
-        <!-- Rotating mandala backdrop (fallback) removed for cartoon theme -->
-        <div class="hero-mandala-bg" id="heroMandala">
-        </div>
-
-        <!-- Cinematic text sequence -->
-        <div class="hero-stage" id="heroStage">
-
-            <!-- Phase 1: Questions (hooks) -->
-            <div class="question-phase" id="questionPhase">
-                <div class="question-scene active" data-corner="bl">
-                    <h2 class="q-heading">Feeling lost?</h2>
-                    <p class="q-support">Parenting decisions, career doubts, or just life — clarity starts with understanding yourself.</p>
-                </div>
-                <div class="question-scene" data-corner="tr">
-                    <h2 class="q-heading">Overwhelmed &amp; anxious?</h2>
-                    <p class="q-support">Reiki and tarot-guided healing help you release what's weighing you down.</p>
-                </div>
-                <div class="question-scene" data-corner="tl">
-                    <h2 class="q-heading">Stuck in one place?</h2>
-                    <p class="q-support">A DMIT assessment reveals the strengths you didn't know you had.</p>
-                </div>
-                <div class="question-scene" data-corner="br">
-                    <h2 class="q-heading">Seeking real clarity?</h2>
-                    <p class="q-support">Dr. Gargee Gadgil blends medicine, therapy &amp; intuition for answers that actually fit you.</p>
-                </div>
-                <div class="question-scene" data-corner="center">
-                    <h2 class="q-heading">Ready to heal?</h2>
-                    <p class="q-support">Your journey to lasting transformation begins here.</p>
-                </div>
-            </div>
-
-            <!-- Phase 2: Main reveal -->
-            <div class="reveal-phase" id="revealPhase">
-
-                <div class="hero-welcome-line">Welcome to</div>
-                <h1 class="hero-brand-name" id="heroBrand">
-                    <span class="brand-inner">INNER HARMONY</span>
+        <!-- ========== ACT 1 · HERO (dawn) — words fly in ========== -->
+        <section class="hero" id="hero">
+            <div class="hero-inner">
+                <p class="hero-eyebrow" data-fly>A journey inward</p>
+                <h1 class="hero-title" id="heroTitle">
+                    <span class="line"><span data-fly class="w">The</span> <span data-fly class="w">quietest</span></span>
+                    <span class="line"><span data-fly class="w">answers</span> <span data-fly class="w">are</span> <span data-fly class="w">already</span></span>
+                    <span class="line"><span data-fly class="w accent">inside</span> <span data-fly class="w accent">you.</span></span>
                 </h1>
-                <p class="hero-tagline-reveal">Heal Within. Shine Beyond.™</p>
-                <p class="hero-sub-reveal">
-                    A physician, healer & guide — Dr. Gargee Gadgil helps you understand yourself,<br>
-                    heal from within, and create lasting transformation.
-                </p>
-                <div class="hero-pills">
-                    <span class="hero-pill" id="pill1">Parenting</span>
-                    <span class="hero-pill" id="pill2">Tarot Healing</span>
-                    <span class="hero-pill" id="pill3">Reiki</span>
-                    <span class="hero-pill" id="pill4">DMIT</span>
-                    <span class="hero-pill" id="pill5">Career</span>
+                <p class="hero-lede" data-fly>Scroll slowly. This one isn't what you think it is.</p>
+            </div>
+            <a href="#blink" class="scroll-cue"><span>scroll to breathe</span><span class="scroll-cue-line"></span></a>
+        </section>
+
+        <!-- ========== ACT 2 · THE BLINK — zoom into the orb, world blinks to night ========== -->
+        <section class="blink-act" id="blink">
+            <div class="pin">
+                <!-- pre-blink calm copy -->
+                <div class="blink-intro" data-blink="intro">
+                    <p class="section-eyebrow">Before we go inward</p>
+                    <h2 class="section-title">Take one breath.<br><span class="accent">Then keep scrolling.</span></h2>
+                </div>
+
+                <!-- the orb you fall into -->
+                <div class="portal-orb" id="portalOrb">
+                    <span class="portal-core"></span>
+                    <span class="portal-ring"></span>
+                    <span class="portal-ring r2"></span>
+                </div>
+
+                <!-- eyelids that close & open (the blink) -->
+                <div class="lid lid-top" id="lidTop"></div>
+                <div class="lid lid-bottom" id="lidBot"></div>
+
+                <!-- revealed after the blink -->
+                <div class="blink-reveal" id="blinkReveal">
+                    <p class="reveal-kicker">the light went out…</p>
+                    <h2 class="reveal-title">Now — the parts we<br>only meet in the <span class="accent">dark.</span></h2>
+                    <p class="reveal-sub">Keep going. Your offerings are written in the stars below.</p>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Scroll indicator -->
-        <div class="hero-scroll" id="heroScroll">
-            <span>Discover your journey</span>
-            <div class="scroll-mouse">
-                <div class="scroll-wheel"></div>
-            </div>
-        </div>
-    </section>
-    </div><!-- /.hero-wrap -->
-
-    <!-- ========== INTERACTIVE HOOK — "WHAT BRINGS YOU HERE?" ========== -->
-    <section class="hook-section" id="hookSection">
-        <div class="hook-bg-text">HEAL</div>
-        <div class="container">
-            <div class="hook-header">
-                <div class="hook-pre">You are in the right place</div>
-                <h2 class="hook-title">What brings you <em>here today?</em></h2>
-                <p class="hook-sub">Choose what resonates with you — we'll show you the path forward</p>
-            </div>
-            <div class="hook-cards">
-                <a href="#parenting" class="hook-card" id="hookParent">
-                    <div class="hook-card-glow"></div>
-                    <div class="hook-card-icon">
-                        <svg viewBox="0 0 60 60" fill="none">
-                            <circle cx="30" cy="30" r="29" stroke="currentColor" stroke-width="1" />
-                            <path
-                                d="M30 18c-3.3 0-6 2.7-6 6s2.7 6 6 6 6-2.7 6-6-2.7-6-6-6zm0 14c-6.6 0-12 3-12 6.7V42h24v-3.3c0-3.7-5.4-6.7-12-6.7z"
-                                fill="currentColor" opacity="0.7" />
-                            <circle cx="20" cy="26" r="4" fill="currentColor" opacity="0.4" />
-                            <path d="M14 38c0-2.8 2.7-5 6-5.8" stroke="currentColor" stroke-width="1.2" opacity="0.5" />
-                        </svg>
-                    </div>
-                    <h3>I'm a Parent</h3>
-                    <p>Seeking guidance for my child or my family's harmony</p>
-                    <div class="hook-card-arrow">→</div>
-                </a>
-                <a href="#tarot" class="hook-card" id="hookHeal">
-                    <div class="hook-card-glow"></div>
-                    <div class="hook-card-icon">
-                        <svg viewBox="0 0 60 60" fill="none">
-                            <circle cx="30" cy="30" r="29" stroke="currentColor" stroke-width="1" />
-                            <path d="M30 12l3 9h9.5l-7.7 5.6 2.9 9L30 30.1l-7.7 5.5 2.9-9L17.5 21H27z"
-                                fill="currentColor" opacity="0.7" />
-                            <circle cx="30" cy="46" r="4" fill="currentColor" opacity="0.3" />
-                        </svg>
-                    </div>
-                    <h3>I Need Healing</h3>
-                    <p>Feeling stuck, overwhelmed, or carrying emotional weight</p>
-                    <div class="hook-card-arrow">→</div>
-                </a>
-                <a href="#career" class="hook-card" id="hookCareer">
-                    <div class="hook-card-glow"></div>
-                    <div class="hook-card-icon">
-                        <svg viewBox="0 0 60 60" fill="none">
-                            <circle cx="30" cy="30" r="29" stroke="currentColor" stroke-width="1" />
-                            <path d="M30 15l.01 0M30 15v30M15 30h30" stroke="currentColor" stroke-width="2.5"
-                                stroke-linecap="round" opacity="0.5" />
-                            <circle cx="30" cy="30" r="8" stroke="currentColor" stroke-width="1.5" />
-                            <circle cx="30" cy="15" r="3" fill="currentColor" opacity="0.8" />
-                        </svg>
-                    </div>
-                    <h3>I Want Career Clarity</h3>
-                    <p>Lost about my path, purpose, or next professional move</p>
-                    <div class="hook-card-arrow">→</div>
-                </a>
-                <a href="#about" class="hook-card" id="hookSelf">
-                    <div class="hook-card-glow"></div>
-                    <div class="hook-card-icon">
-                        <svg viewBox="0 0 60 60" fill="none">
-                            <circle cx="30" cy="30" r="29" stroke="currentColor" stroke-width="1" />
-                            <circle cx="30" cy="25" r="9" stroke="currentColor" stroke-width="1.5" opacity="0.7" />
-                            <path d="M30 36v3M26 44c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="currentColor" stroke-width="1.5"
-                                stroke-linecap="round" opacity="0.5" />
-                            <path d="M20 14c2.5-3 6-5 10-5s7.5 2 10 5" stroke="currentColor" stroke-width="1.2"
-                                stroke-linecap="round" opacity="0.3" />
-                        </svg>
-                    </div>
-                    <h3>I Want to Know Myself</h3>
-                    <p>Curious about my strengths, patterns, and deeper potential</p>
-                    <div class="hook-card-arrow">→</div>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- ========== MARQUEE STRIP ========== -->
-    <div class="marquee-section">
-        <div class="marquee-track">
-            <div class="marquee-content">
-                <span>Parenting Assessment</span><span class="marquee-dot"></span>
-                <span>DMIT Blueprint</span><span class="marquee-dot"></span>
-                <span>Tarot Healing</span><span class="marquee-dot"></span>
-                <span>Reiki Blueprint</span><span class="marquee-dot"></span>
-                <span>Career Compass</span><span class="marquee-dot"></span>
-                <span>Inner Child Healing</span><span class="marquee-dot"></span>
-                <span>Trauma Healing</span><span class="marquee-dot"></span>
-                <span>Empowered Parenting</span><span class="marquee-dot"></span>
-            </div>
-            <div class="marquee-content" aria-hidden="true">
-                <span>Parenting Assessment</span><span class="marquee-dot"></span>
-                <span>DMIT Blueprint</span><span class="marquee-dot"></span>
-                <span>Tarot Healing</span><span class="marquee-dot"></span>
-                <span>Reiki Blueprint</span><span class="marquee-dot"></span>
-                <span>Career Compass</span><span class="marquee-dot"></span>
-                <span>Inner Child Healing</span><span class="marquee-dot"></span>
-                <span>Trauma Healing</span><span class="marquee-dot"></span>
-                <span>Empowered Parenting</span><span class="marquee-dot"></span>
-            </div>
-        </div>
-    </div>
-
-    <!-- ========== ABOUT DR. GARGEE — VISUAL STORYTELLING ========== -->
-    <section class="about section" id="about">
-        <div class="container">
-            <div class="about-grid">
-                <div class="about-image-col">
-                    <div class="about-image-frame">
-                        <div class="about-img-placeholder">
-                            <!-- Removed mandala from about section -->
-                            <div class="about-img-overlay">
-                                <span class="about-name-over">Dr. Gargee Gadgil</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="about-floating-quote">
-                        <span>"I don't believe people need fixing.<br>I believe they need a <em>deeper
-                                understanding.</em>"</span>
-                    </div>
-                    <div class="about-img-badge">
-                        <span class="badge-num">28+</span>
-                        <span class="badge-label">Years in Practice</span>
-                    </div>
-                </div>
-                <div class="about-text">
-                    <span class="section-label reveal-text">About Dr. Gargee</span>
-                    <h2 class="section-title split-words">A Physician.<br>A Healer.<br><em>A Guide.</em></h2>
-                    <p class="about-intro reveal-up">
-                        Hello, I'm <strong>Dr. Gargee Gadgil</strong>, founder of INNER HARMONY. A physician, a holistic
-                        healer, a wife, and a mother of two.
-                    </p>
-                    <p class="reveal-up">
-                        For over 28 years, I have guided thousands of individuals, parents, children, and families on
-                        their journey towards health, self-understanding, emotional well-being, and personal growth.
-                    </p>
-                    <p class="reveal-up">
-                        My approach brings together the science of medicine and psychology with the wisdom of holistic
-                        healing — through psychometric assessments, parenting guidance, career counselling,
-                        tarot-informed healing, and Reiki.
-                    </p>
-                    <div class="about-mission reveal-up">
-                        <div class="mission-icon">✦</div>
-                        <p>To create a compassionate, non-judgmental space where people feel seen, understood, and
-                            empowered to transform their lives.</p>
-                    </div>
-                    <div class="about-stats">
-                        <div class="stat">
-                            <span class="stat-number" data-count="1000">0</span><span class="stat-suffix">+</span>
-                            <span class="stat-label">Lives Transformed</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-number" data-count="28">0</span><span class="stat-suffix">+</span>
-                            <span class="stat-label">Years in Practice</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-number" data-count="8">0</span><span class="stat-suffix">+</span>
-                            <span class="stat-label">Healing Modalities</span>
-                        </div>
-                    </div>
-                    <div class="about-tagline reveal-up">UNDERSTAND YOURSELF. HEAL DEEPLY. LIVE AUTHENTICALLY.</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ========== SERVICES — VISUAL CARD GRID ========== -->
-    <section class="services section" id="services">
-        <div class="services-bg-pattern"></div>
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label reveal-text">What We Offer</span>
-                <h2 class="section-title split-words">Six Paths to <em>Transformation</em></h2>
-                <p class="section-subtitle reveal-up">Every journey is unique. Choose the path that speaks to your
-                    heart.</p>
+        <!-- ========== ACT 3 · CONSTELLATION (night) — connect the stars ========== -->
+        <section class="constellation" id="constellation">
+            <canvas class="star-canvas" id="starCanvas"></canvas>
+            <div class="constellation-head">
+                <p class="section-eyebrow light">Move your cursor. Touch the stars.</p>
+                <h2 class="section-title light">Six lights to guide you.</h2>
             </div>
 
-            <!-- Visual services grid -->
-            <div class="services-visual-grid">
-
-                <div class="svc-card" id="scParenting" data-href="#parenting-assessment">
-                    <div class="svc-card-bg" style="--svc-color: #a7f3d0;"></div>
-                    <div class="svc-card-content">
-                        <div class="svc-icon">
-                            <img src="card_parenting.jpg?v=6" alt="Parenting Assessment" class="svc-img"
-                                style="object-fit: cover; width: 100%; height: 100%;">
-                        </div>
-                        <div class="svc-number">01</div>
+            <div class="star-field" id="starField">
+                <!-- stars positioned by data-x / data-y (%) -->
+                <button class="star" style="--x:16%; --y:30%;" data-star>
+                    <span class="star-dot"></span>
+                    <div class="star-card">
+                        <img src="card_parenting.jpg" alt="" loading="lazy">
+                        <span class="star-num">01</span>
                         <h3>Parenting Assessment</h3>
-                        <p>Understand your child's emotional needs, learning style & behavior</p>
-                        <div class="svc-tag">Ages 3–18 yrs</div>
+                        <p>Understand your child's emotions, learning style & behaviour.</p>
                     </div>
-                    <div class="svc-card-hover">
-                        <span>Inner Harmony Parenting Assessment™</span>
-                        <p>Because understanding leads to connection — and connected families thrive.</p>
-                        <a href="#parenting-assessment" class="svc-learn-link">Explore →</a>
+                </button>
+                <button class="star" style="--x:38%; --y:64%;" data-star>
+                    <span class="star-dot"></span>
+                    <div class="star-card">
+                        <img src="card_dmit.jpg" alt="" loading="lazy">
+                        <span class="star-num">02</span>
+                        <h3>Inner Potential Blueprint</h3>
+                        <p>A DMIT map of your child's natural genius and direction.</p>
                     </div>
-                </div>
-
-                <div class="svc-card" id="scDmit" data-href="#dmit">
-                    <div class="svc-card-bg" style="--svc-color: #fef08a;"></div>
-                    <div class="svc-card-content">
-                        <div class="svc-icon">
-                            <img src="card_dmit.jpg?v=6" alt="DMIT Blueprint" class="svc-img" style="object-fit: cover; width: 100%; height: 100%;">
-                        </div>
-                        <div class="svc-number">02</div>
-                        <h3>DMIT Blueprint</h3>
-                        <p>Discover your child's natural genius, learning style & career direction</p>
-                        <div class="svc-tag">Inner Potential Blueprint™</div>
+                </button>
+                <button class="star" style="--x:56%; --y:26%;" data-star>
+                    <span class="star-dot"></span>
+                    <div class="star-card">
+                        <img src="card_tarot.jpg" alt="" loading="lazy">
+                        <span class="star-num">03</span>
+                        <h3>Heal Within</h3>
+                        <p>Tarot-informed, trauma-aware healing — not to predict, to release.</p>
                     </div>
-                    <div class="svc-card-hover">
-                        <span>The Inner Potential Blueprint™</span>
-                        <p>Every child is a genius. We just need to find where their talent truly lies.</p>
-                        <a href="#dmit" class="svc-learn-link">Explore →</a>
-                    </div>
-                </div>
-
-                <div class="svc-card" id="scTarot" data-href="#tarot">
-                    <div class="svc-card-bg" style="--svc-color: #bae6fd;"></div>
-                    <div class="svc-card-content">
-                        <div class="svc-icon">
-                            <img src="card_tarot.jpg?v=6" alt="Tarot Healing" class="svc-img" style="object-fit: cover; width: 100%; height: 100%;">
-                        </div>
-                        <div class="svc-number">03</div>
-                        <h3>Tarot Healing</h3>
-                        <p>Emotional healing & self-discovery through tarot-informed therapy</p>
-                        <div class="svc-tag">Heal Within Blueprint™</div>
-                    </div>
-                    <div class="svc-card-hover">
-                        <span>Heal Within Blueprint™</span>
-                        <p>Not to predict your future — but to heal the parts holding you back.</p>
-                        <a href="#tarot" class="svc-learn-link">Explore →</a>
-                    </div>
-                </div>
-
-                <div class="svc-card" id="scReiki" data-href="#reiki">
-                    <div class="svc-card-bg" style="--svc-color: #fbcfe8;"></div>
-                    <div class="svc-card-content">
-                        <div class="svc-icon">
-                            <img src="card_reiki.jpg?v=6" alt="Reiki Healing" class="svc-img" style="object-fit: cover; width: 100%; height: 100%;">
-                        </div>
-                        <div class="svc-number">04</div>
+                </button>
+                <button class="star" style="--x:72%; --y:58%;" data-star>
+                    <span class="star-dot"></span>
+                    <div class="star-card">
+                        <img src="card_reiki.jpg" alt="" loading="lazy">
+                        <span class="star-num">04</span>
                         <h3>Reiki Healing</h3>
-                        <p>Holistic energy healing for your health, career & relationships</p>
-                        <div class="svc-tag">Inner Harmony Reiki™</div>
+                        <p>Gentle energy healing for body, mind & relationships.</p>
                     </div>
-                    <div class="svc-card-hover">
-                        <span>Inner Harmony Reiki Blueprint™</span>
-                        <p>Your outer world is the reflection of your inner self.</p>
-                        <a href="#reiki" class="svc-learn-link">Explore →</a>
-                    </div>
-                </div>
-
-                <div class="svc-card" id="scParentProg" data-href="#parenting">
-                    <div class="svc-card-bg" style="--svc-color: #ddd6fe;"></div>
-                    <div class="svc-card-content">
-                        <div class="svc-icon">
-                            <img src="card_empowered_parenting.jpg?v=6" alt="Empowered Parenting" class="svc-img" style="object-fit: cover; width: 100%; height: 100%;">
-                        </div>
-                        <div class="svc-number">05</div>
+                </button>
+                <button class="star" style="--x:30%; --y:82%;" data-star>
+                    <span class="star-dot"></span>
+                    <div class="star-card">
+                        <img src="card_empowered_parenting.jpg" alt="" loading="lazy">
+                        <span class="star-num">05</span>
                         <h3>Empowered Parenting</h3>
-                        <p>Calmer homes, stronger bonds & confident, connected families</p>
-                        <div class="svc-tag">Empowered Parent Blueprint™</div>
+                        <p>Calmer homes, stronger bonds, confident families.</p>
                     </div>
-                    <div class="svc-card-hover">
-                        <span>The Empowered Parent Blueprint™</span>
-                        <p>Because when parents feel supported, children thrive.</p>
-                        <a href="#parenting" class="svc-learn-link">Explore →</a>
-                    </div>
-                </div>
-
-                <div class="svc-card" id="scCareer" data-href="#career">
-                    <div class="svc-card-bg" style="--svc-color: #fed7aa;"></div>
-                    <div class="svc-card-content">
-                        <div class="svc-icon">
-                            <img src="card_career_compass.jpg?v=6" alt="Career Compass" class="svc-img" style="object-fit: cover; width: 100%; height: 100%;">
-                        </div>
-                        <div class="svc-number">06</div>
+                </button>
+                <button class="star" style="--x:84%; --y:34%;" data-star>
+                    <span class="star-dot"></span>
+                    <div class="star-card">
+                        <img src="card_career_compass.jpg" alt="" loading="lazy">
+                        <span class="star-num">06</span>
                         <h3>Career Compass</h3>
-                        <p>Align your purpose, strengths & passion to the perfect career path</p>
-                        <div class="svc-tag">Career Compass Blueprint™</div>
+                        <p>Align strengths, personality & passion to the right path.</p>
                     </div>
-                    <div class="svc-card-hover">
-                        <span>Career Compass Blueprint™</span>
-                        <p>Stop guessing your future. Discover the career that's truly yours.</p>
-                        <a href="#career" class="svc-learn-link">Explore →</a>
-                    </div>
-                </div>
-
+                </button>
             </div>
-        </div>
-    </section>
+            <p class="constellation-hint" id="constHint">✦ hover a star to reveal its gift</p>
+        </section>
 
-    <!-- ========== PHILOSOPHY — PULL QUOTE ========== -->
-    <section class="philosophy section" id="philosophy">
-        <div class="philosophy-canvas" id="philosophyCanvas"></div>
-        <div class="philosophy-bg"></div>
-        <div class="container">
-            <div class="philosophy-inner">
-                                <div class="philosophy-mandala">
-                    <img src="card_philosophy.jpg" alt="Inner Wisdom" style="width: 100%; max-width: 400px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);" />
-                </div>
-                <div class="philosophy-text">
-                    <span class="section-label">The Inner Harmony Way</span>
-                    <div class="philo-quote-block">
-                        <div class="philo-line" id="philoL1">I believe every person</div>
-                        <div class="philo-line" id="philoL2">already carries</div>
-                        <div class="philo-line philo-accent" id="philoL3">the answers</div>
-                        <div class="philo-line philo-accent" id="philoL4">they <em>seek.</em></div>
+        <!-- ========== ACT 4 · SIDEWAYS DETOUR — the guide's story slides horizontally ========== -->
+        <section class="sideways" id="guide">
+            <div class="pin">
+                <div class="rail" id="sideRail">
+                    <div class="panel panel-title">
+                        <p class="section-eyebrow">Wait — we're going sideways now</p>
+                        <h2 class="section-title">Meet your guide,<br><span class="accent">Dr. Gargee Gadgil.</span></h2>
+                        <p class="panel-hint">keep scrolling ↓ &nbsp;·&nbsp; the story moves →</p>
                     </div>
-                    <p class="philo-desc reveal-up">
-                        Sometimes, we simply need the right guidance to uncover them. My greatest joy is witnessing
-                        people reconnect with their inner strength, embrace their authentic selves, and step into a life
-                        filled with greater purpose, confidence, and harmony.
-                    </p>
-                    <a href="#contact" class="btn btn-light magnetic reveal-up">Begin Your Transformation</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ========== SERVICES DETAIL SECTIONS ========== -->
-    <section class="services-detail section" id="services-detail">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label reveal-text">In Detail</span>
-                <h2 class="section-title split-words">Our <em>Programmes</em></h2>
-            </div>
-
-            <!-- Accordion-style service detail -->
-            <div class="accord-list">
-
-                <div class="accord-item reveal-card" id="parenting-assessment">
-                    <div class="accord-head" onclick="toggleAccord(this)">
-                        <div class="accord-head-left">
-                            <span class="accord-num">01</span>
-                            <div>
-                                <span class="accord-tag">INNER HARMONY PARENTING ASSESSMENT™</span>
-                                <h3>Understand Your Child Better. Parent with Greater Confidence.</h3>
-                            </div>
-                        </div>
-                        <div class="accord-toggle">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M6 9l6 6 6-6" />
-                            </svg>
-                        </div>
+                    <div class="panel panel-quote">
+                        <p class="huge-quote">“I don't believe people need <span class="accent">fixing.</span> I believe they need a deeper <span class="accent">understanding.</span>”</p>
                     </div>
-                    <div class="accord-body">
-                        <div class="accord-body-inner">
-                            <p>Every child is unique, and every parent faces challenges at different stages of their
-                                parenting journey. Sometimes, understanding why certain behaviors occur is the first
-                                step towards creating positive change.</p>
-                            <p>Our online parenting assessments provide valuable insights into your child's emotional
-                                needs, behavior, learning preferences, and family dynamics. Each assessment is followed
-                                by a <strong>one-to-one consultation</strong> where the results are explained in simple,
-                                practical language.</p>
-                            <div class="accord-quote">Because understanding leads to connection — and connected families
-                                thrive.</div>
-                            <div class="accord-checklist">
-                                <h4>Take this assessment if you:</h4>
-                                <ul>
-                                    <li><span>✦</span> Your child is aged 3–18 years</li>
-                                    <li><span>✦</span> Experience daily conflicts or behavioral challenges</li>
-                                    <li><span>✦</span> Seek stronger communication and connection</li>
-                                    <li><span>✦</span> Want to support your child's academic success</li>
-                                    <li><span>✦</span> Simply want to understand your child better</li>
-                                </ul>
-                            </div>
-                            <a href="#contact" class="btn btn-primary magnetic" style="margin-top: 24px;">Book an
-                                Assessment</a>
-                        </div>
+                    <div class="panel panel-text">
+                        <p>I'm a physician, a holistic healer, a wife, and a mother of two. For over 28 years I've walked beside thousands of people on their way toward understanding, well-being, and growth.</p>
+                        <p>My work blends the science of medicine and psychology with the gentleness of holistic healing — and one steady belief: you are not broken.</p>
                     </div>
-                </div>
-
-                <div class="accord-item reveal-card" id="dmit">
-                    <div class="accord-head" onclick="toggleAccord(this)">
-                        <div class="accord-head-left">
-                            <span class="accord-num">02</span>
-                            <div>
-                                <span class="accord-tag">THE INNER POTENTIAL BLUEPRINT™</span>
-                                <h3>Discover Your Child's Natural Strengths & Learning Potential</h3>
-                            </div>
-                        </div>
-                        <div class="accord-toggle">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M6 9l6 6 6-6" />
-                            </svg>
-                        </div>
+                    <div class="panel panel-stats">
+                        <div class="stat"><span class="stat-num" data-count="1000">0</span><span class="stat-plus">+</span><span class="stat-label">lives touched</span></div>
+                        <div class="stat"><span class="stat-num" data-count="28">0</span><span class="stat-plus">+</span><span class="stat-label">years of practice</span></div>
+                        <div class="stat"><span class="stat-num" data-count="8">0</span><span class="stat-plus">+</span><span class="stat-label">healing modalities</span></div>
                     </div>
-                    <div class="accord-body">
-                        <div class="accord-body-inner">
-                            <p><strong>Align Their Strengths. Discover Their Direction. Build Their Future.</strong></p>
-                            <p>Every child is unique. Every child is a genius. Every child can excel — but we need to
-                                know where their talent lies. The Dermatoglyphics Multiple Intelligence Test (DMIT) is a
-                                comprehensive assessment providing insights into multiple intelligences, unique learning
-                                style, strengths, abilities, passion, personality traits, and career path.</p>
-                            <p>Every assessment is followed by a <strong>personalized counselling session</strong> where
-                                we explain the report in simple, practical language.</p>
-                            <a href="#contact" class="btn btn-primary magnetic" style="margin-top: 24px;">Discover Their
-                                Blueprint</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accord-item reveal-card" id="tarot">
-                    <div class="accord-head" onclick="toggleAccord(this)">
-                        <div class="accord-head-left">
-                            <span class="accord-num">03</span>
-                            <div>
-                                <span class="accord-tag">HEAL WITHIN BLUEPRINT™</span>
-                                <h3>Tarot-Informed, Trauma-Based Emotional Healing & Inner Transformation</h3>
-                            </div>
-                        </div>
-                        <div class="accord-toggle">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M6 9l6 6 6-6" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="accord-body">
-                        <div class="accord-body-inner">
-                            <p>At INNER HARMONY, tarot is used as a powerful tool for self-discovery, emotional healing,
-                                and personal growth — <strong>not for predicting your future!</strong> Each card acts as
-                                a gentle mirror, helping you uncover the deeper thoughts, emotions, and hidden life
-                                patterns that may be keeping you feeling stuck, overwhelmed, or disconnected.</p>
-                            <p>Blending the wisdom of tarot with compassionate coaching, inner child healing, trauma
-                                healing, and holistic practices, each session helps you reconnect with yourself, release
-                                limiting beliefs, and move forward with greater clarity and inner peace.</p>
-                            <div class="accord-quote">True transformation comes from healing the parts of yourself that
-                                have been holding you back.</div>
-                            <div class="accord-tagline">HEAL FROM WITHIN. &nbsp; TRANSFORM FROM THE INSIDE OUT.</div>
-                            <a href="#contact" class="btn btn-primary magnetic" style="margin-top: 24px;">Begin Your
-                                Healing</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accord-item reveal-card" id="reiki">
-                    <div class="accord-head" onclick="toggleAccord(this)">
-                        <div class="accord-head-left">
-                            <span class="accord-num">04</span>
-                            <div>
-                                <span class="accord-tag">INNER HARMONY REIKI BLUEPRINT™</span>
-                                <h3>Holistic Healing for Your Health, Career & Relationships</h3>
-                            </div>
-                        </div>
-                        <div class="accord-toggle">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M6 9l6 6 6-6" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="accord-body">
-                        <div class="accord-body-inner">
-                            <p class="accord-mantra">YOUR OUTER WORLD IS THE REFLECTION OF YOUR INNER SELF.</p>
-                            <p>The challenges we see on the outside — health concerns, financial difficulties, career
-                                setbacks, relationship struggles — are often only visible symptoms. Beneath the surface
-                                may lie chronic stress, emotional overwhelm, unresolved trauma, and suppressed emotions.
-                            </p>
-                            <p>Reiki is a gentle, non-invasive healing practice that promotes the deepest level of
-                                restoration and relaxation, supporting your body's natural ability to heal. As your body
-                                begins to relax, your mind becomes quieter, emotions become easier to process.</p>
-                            <div class="accord-quote">Healing isn't about becoming someone new. It is about gently
-                                returning to the healthiest, calmest, and most authentic version of yourself.</div>
-                            <div class="accord-tagline">DEEP HEALING. &nbsp; EMOTIONAL BALANCE. &nbsp; HOLISTIC
-                                WELL-BEING</div>
-                            <a href="#contact" class="btn btn-primary magnetic" style="margin-top: 24px;">Experience
-                                Reiki Healing</a>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- ========== PARENTING SECTION ========== -->
-    <section class="parenting-section section" id="parenting">
-        <div class="parenting-bg"></div>
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label reveal-text">Parenting</span>
-                <h2 class="section-title split-words">The <em>Empowered Parent</em> Blueprint™</h2>
-                <p class="section-subtitle reveal-up">Nurturing Stronger Connections, Calmer Homes & Confident Families
-                </p>
-            </div>
-            <div class="parenting-grid">
-                <div class="parenting-text reveal-up">
-                    <p>Parenting is one of life's most rewarding journeys, but it can also be one of the most
-                        challenging. Balancing work, family responsibilities, and the emotional needs of your children
-                        can often leave parents feeling overwhelmed, exhausted, and unsure of the best way forward.</p>
-                    <p>Through tarot-informed, trauma-based emotional healing & inner-child healing, together we explore
-                        the root causes behind your challenges, discover the inner blueprints, hidden beliefs, and
-                        fears.</p>
-                    <div class="parenting-belief reveal-up">
-                        <div class="parenting-belief-icon">❤</div>
-                        <span>Because when parents feel supported, children thrive.</span>
-                    </div>
-                </div>
-                <div class="parenting-benefits-col">
-                    <h4 class="reveal-up">We help you:</h4>
-                    <div class="benefits-list">
-                        <div class="benefit-item reveal-card">
-                            <div class="benefit-dot"></div>
-                            <p>Balance work and family life</p>
-                        </div>
-                        <div class="benefit-item reveal-card">
-                            <div class="benefit-dot"></div>
-                            <p>Understand your child's emotional needs</p>
-                        </div>
-                        <div class="benefit-item reveal-card">
-                            <div class="benefit-dot"></div>
-                            <p>Reduce daily conflicts and power struggles</p>
-                        </div>
-                        <div class="benefit-item reveal-card">
-                            <div class="benefit-dot"></div>
-                            <p>Support children's academic success without stress</p>
-                        </div>
-                        <div class="benefit-item reveal-card">
-                            <div class="benefit-dot"></div>
-                            <p>Manage screen time and daily routines</p>
-                        </div>
-                        <div class="benefit-item reveal-card">
-                            <div class="benefit-dot"></div>
-                            <p>Raise confident, compassionate, emotionally secure children</p>
-                        </div>
-                    </div>
-                    <a href="#contact" class="btn btn-primary magnetic reveal-up" style="margin-top: 28px;">Start Your
-                        Parenting Journey</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ========== CAREER SECTION ========== -->
-    <section class="career-section section" id="career">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label reveal-text">Career Counselling</span>
-                <h2 class="section-title split-words">Career Compass <em>Blueprint™</em></h2>
-                <p class="section-subtitle reveal-up">Stop guessing your future. Align your unique personality, inner
-                    strengths, interests & ambitions to the perfect career path.</p>
-            </div>
-            <div class="career-grid">
-                <div class="career-intro reveal-up">
-                    <p>At INNER HARMONY, career counselling is about far more than selecting a profession — it's about
-                        discovering a career that aligns with your unique strengths, personality, interests, values, and
-                        long-term aspirations.</p>
-                    <p>The <strong>CAREER COMPASS BLUEPRINT™</strong> combines comprehensive psychometric assessments
-                        with personalized counselling to help you gain a deeper understanding of yourself.</p>
-                    <div class="accord-quote" style="margin-top: 20px;">Because when your career reflects your authentic
-                        strengths and passions, success becomes more sustainable, enjoyable, and rewarding.</div>
-                </div>
-                <div class="career-right">
-                    <div class="career-different reveal-card">
-                        <h4>Tailored Assessments For:</h4>
-                        <ul class="career-list">
-                            <li><span class="career-bullet">✦</span> Students (Grades 8–12)</li>
-                            <li><span class="career-bullet">✦</span> College students deciding on specializations</li>
-                            <li><span class="career-bullet">✦</span> Young adults beginning their professional journey
-                            </li>
-                            <li><span class="career-bullet">✦</span> Working professionals considering a career change
-                            </li>
-                            <li><span class="career-bullet">✦</span> Parents seeking guidance for their child's future
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="career-tests reveal-card">
-                        <div class="career-tests-header">
-                            <button class="test-tab active" data-tab="students" id="tabStudents">For Students</button>
-                            <button class="test-tab" data-tab="professionals"
-                                id="tabProfessionals">Professionals</button>
-                        </div>
-                        <div class="test-panel active" id="panelStudents">
-                            <div class="test-items">
-                                <div class="test-item"><span class="test-bullet">✦</span>
-                                    <div><strong>Career Exploration</strong>
-                                        <p>Discover pathways aligned to your interests</p>
-                                    </div>
-                                </div>
-                                <div class="test-item"><span class="test-bullet">✦</span>
-                                    <div><strong>Overseas Readiness Assessment</strong>
-                                        <p>Evaluate readiness for international education</p>
-                                    </div>
-                                </div>
-                                <div class="test-item"><span class="test-bullet">✦</span>
-                                    <div><strong>Disha Assessment</strong>
-                                        <p>Comprehensive career direction analysis</p>
-                                    </div>
-                                </div>
-                                <div class="test-item"><span class="test-bullet">✦</span>
-                                    <div><strong>Job Readiness Assessment</strong>
-                                        <p>Prepare for the professional world</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="test-panel" id="panelProfessionals">
-                            <div class="test-items">
-                                <div class="test-item"><span class="test-bullet">✦</span>
-                                    <div><strong>Workplace Leadership Abilities</strong>
-                                        <p>Identify and develop your natural leadership strengths</p>
-                                    </div>
-                                </div>
-                                <div class="test-item"><span class="test-bullet">✦</span>
-                                    <div><strong>Workplace Satisfaction Assessment</strong>
-                                        <p>Uncover what truly drives your professional fulfilment</p>
-                                    </div>
-                                </div>
-                                <div class="test-item"><span class="test-bullet">✦</span>
-                                    <div><strong>Career Fulfilment Assessment</strong>
-                                        <p>Align your role with your deeper sense of purpose</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <a href="#contact" class="btn btn-primary magnetic" style="margin-top: 24px;">Find Your Career
-                            Direction</a>
+                    <div class="panel panel-end">
+                        <h2 class="section-title">A compassionate space<br>where you feel <span class="accent">seen.</span></h2>
+                        <p class="panel-hint">the sun is about to rise ↓</p>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- ========== HOW IT WORKS ========== -->
-    <section class="steps section" id="steps">
-        <div class="steps-bg"></div>
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label reveal-text">How It Works</span>
-                <h2 class="section-title split-words">Three Steps to <em>Begin</em></h2>
-            </div>
-            <div class="steps-grid">
-                <div class="step-card reveal-card">
-                    <div class="step-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="1.5">
-                            <path
-                                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
-                        </svg></div>
-                    <span class="step-number">01</span>
-                    <h3>Reach Out</h3>
-                    <p>Share your concerns through the contact form or WhatsApp. Every journey begins with a single
-                        step.</p>
-                    <div class="step-arrow"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2">
-                            <path d="M5 12h14M12 5l7 7-7 7" />
-                        </svg></div>
-                </div>
-                <div class="step-card reveal-card">
-                    <div class="step-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="1.5">
-                            <circle cx="12" cy="12" r="10" />
-                            <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-                            <line x1="9" y1="9" x2="9.01" y2="9" />
-                            <line x1="15" y1="9" x2="15.01" y2="9" />
-                        </svg></div>
-                    <span class="step-number">02</span>
-                    <h3>Connect & Align</h3>
-                    <p>We'll understand your needs and recommend the right healing modality tailored just for you.</p>
-                    <div class="step-arrow"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2">
-                            <path d="M5 12h14M12 5l7 7-7 7" />
-                        </svg></div>
-                </div>
-                <div class="step-card reveal-card">
-                    <div class="step-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="1.5">
-                            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-                            <path d="M12 6v6l4 2" />
-                        </svg></div>
-                    <span class="step-number">03</span>
-                    <h3>Heal & Transform</h3>
-                    <p>Begin your transformative journey with personalized sessions designed to bring lasting change.
-                    </p>
+        <!-- ========== ACT 5 · SUNRISE — light floods back ========== -->
+        <section class="sunrise" id="sunrise">
+            <div class="pin">
+                <div class="sunrise-sun" id="sunriseSun"></div>
+                <div class="sunrise-copy" id="sunriseCopy">
+                    <p class="section-eyebrow">and just like that —</p>
+                    <h2 class="section-title">morning finds you again.</h2>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- ========== CONTACT ========== -->
-    <section class="contact section" id="contact">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-label reveal-text">Get in Touch</span>
-                <h2 class="section-title split-words">Begin Your <em>Healing</em> Journey</h2>
-                <p class="section-subtitle reveal-up">Take the first step towards transformation. Reach out through the
-                    form or connect directly via WhatsApp.</p>
+        <!-- ========== ACT 6 · PULL A CARD — interactive tarot moment ========== -->
+        <section class="pullcard" id="pullcard">
+            <div class="container center">
+                <p class="section-eyebrow">One small ritual before you go</p>
+                <h2 class="section-title">Pull a card. <span class="accent">Any card.</span></h2>
+                <p class="section-lede">Not to tell your future — just a small mirror for today.</p>
             </div>
-            <div class="contact-grid">
-                <div class="contact-info">
-                    <div class="contact-details reveal-up">
-                        <div class="contact-item">
-                            <div class="contact-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="1.5">
-                                    <path
-                                        d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                                    <polyline points="22,6 12,13 2,6" />
-                                </svg></div>
-                            <div><span class="contact-item-label">Email Us</span><span>contact@innerharmony.in</span>
-                            </div>
-                        </div>
-                        <div class="contact-item">
-                            <div class="contact-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="1.5">
-                                    <path
-                                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
-                                </svg></div>
-                            <div><span class="contact-item-label">Call / WhatsApp</span><span>+91 99300 34340</span>
-                            </div>
-                        </div>
-                        <div class="contact-item">
-                            <div class="contact-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="1.5">
-                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                                    <circle cx="12" cy="10" r="3" />
-                                </svg></div>
-                            <div><span class="contact-item-label">Location</span><span>Pune, Maharashtra, India</span>
-                            </div>
-                        </div>
+            <div class="deck" id="deck">
+                <button class="tcard" data-msg="You already carry the answer you're searching for.">
+                    <span class="tcard-face tcard-back">✦</span>
+                    <span class="tcard-face tcard-front"><em>The Mirror</em></span>
+                </button>
+                <button class="tcard" data-msg="Rest is not the reward for the work. It is part of it.">
+                    <span class="tcard-face tcard-back">✦</span>
+                    <span class="tcard-face tcard-front"><em>The Still Water</em></span>
+                </button>
+                <button class="tcard" data-msg="The thing you're avoiding is the door.">
+                    <span class="tcard-face tcard-back">✦</span>
+                    <span class="tcard-face tcard-front"><em>The Threshold</em></span>
+                </button>
+                <button class="tcard" data-msg="You are allowed to begin again, softly, today.">
+                    <span class="tcard-face tcard-back">✦</span>
+                    <span class="tcard-face tcard-front"><em>The Dawn</em></span>
+                </button>
+                <button class="tcard" data-msg="What feels like falling apart is often making room.">
+                    <span class="tcard-face tcard-back">✦</span>
+                    <span class="tcard-face tcard-front"><em>The Opening</em></span>
+                </button>
+            </div>
+            <p class="card-message" id="cardMessage">choose one ✦</p>
+        </section>
+
+        <!-- ========== ACT 7 · ARRIVAL / CONTACT ========== -->
+        <section class="contact" id="contact">
+            <div class="section-head center">
+                <p class="section-eyebrow reveal">You've arrived</p>
+                <h2 class="section-title reveal">Let's begin, gently.</h2>
+                <p class="section-lede reveal">Reach out through the form or straight to WhatsApp. No pressure, no rush.</p>
+            </div>
+            <div class="container">
+                <div class="contact-grid">
+                    <div class="contact-info reveal">
+                        <div class="contact-item"><span class="contact-label">Email</span><span class="contact-value">contact@innerharmony.in</span></div>
+                        <div class="contact-item"><span class="contact-label">Call / WhatsApp</span><span class="contact-value">+91 99300 34340</span></div>
+                        <div class="contact-item"><span class="contact-label">Where</span><span class="contact-value">Pune, Maharashtra, India</span></div>
+                        <a href="https://wa.me/919930034340?text=Hi%20Dr.%20Gargee,%20I%20would%20like%20to%20book%20a%20session."
+                            class="btn btn-whatsapp" target="_blank" rel="noopener">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                            Chat on WhatsApp
+                        </a>
                     </div>
-                    <a href="https://wa.me/919930034340?text=Hi%20Dr.%20Gargee,%20I%20would%20like%20to%20book%20a%20session."
-                        class="whatsapp-btn magnetic reveal-up" target="_blank" rel="noopener" id="whatsappContactBtn">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                        </svg>
-                        Chat on WhatsApp
-                    </a>
-                </div>
-                <div class="contact-form-wrapper reveal-up">
-                    <form class="contact-form" id="contactForm">
-                        <div class="form-group"><input type="text" id="name" name="name" placeholder="Your Name"
-                                required></div>
-                        <div class="form-group"><input type="email" id="email" name="email" placeholder="Your Email"
-                                required></div>
-                        <div class="form-group"><input type="tel" id="phone" name="phone"
-                                placeholder="Your Phone Number"></div>
-                        <div class="form-group">
-                            <select id="service" name="service" required>
-                                <option value="" disabled selected>Select a Service / Programme</option>
-                                <option value="parenting-assessment">Parenting Assessment</option>
-                                <option value="dmit">DMIT – Inner Potential Blueprint</option>
-                                <option value="tarot-healing">Tarot-Informed Emotional Healing</option>
-                                <option value="reiki">Reiki Healing</option>
-                                <option value="empowered-parent">Empowered Parent Blueprint</option>
-                                <option value="career-compass">Career Compass Blueprint</option>
+                    <form class="contact-form reveal" id="contactForm">
+                        <div class="field"><input type="text" name="name" placeholder="Your name" required></div>
+                        <div class="field"><input type="email" name="email" placeholder="Your email" required></div>
+                        <div class="field"><input type="tel" name="phone" placeholder="Your phone (optional)"></div>
+                        <div class="field">
+                            <select name="service" required>
+                                <option value="" disabled selected>What are you drawn to?</option>
+                                <option>Parenting Assessment</option>
+                                <option>Inner Potential Blueprint (DMIT)</option>
+                                <option>Heal Within — Tarot Healing</option>
+                                <option>Reiki Healing</option>
+                                <option>Empowered Parenting</option>
+                                <option>Career Compass</option>
                             </select>
                         </div>
-                        <div class="form-group"><textarea id="message" name="message"
-                                placeholder="Tell us about your concerns..." rows="4" required></textarea></div>
-                        <button type="submit" class="btn btn-primary btn-full magnetic" id="submitFormBtn">Send
-                            Message</button>
+                        <div class="field"><textarea name="message" rows="4" placeholder="Share whatever feels right…" required></textarea></div>
+                        <button type="submit" class="btn btn-primary btn-full" id="submitBtn">Send with care</button>
                     </form>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
-    <!-- ========== FOOTER ========== -->
     <footer class="footer">
         <div class="container">
             <div class="footer-top">
                 <div class="footer-brand">
-                    <div class="footer-logo">
-                        <img src="logo_nobg.png" alt="Inner Harmony Logo" class="logo-mark-img">
-                        <div class="logo-text-block">
-                            <span class="logo-main">Inner Harmony</span>
-                            <span class="logo-sub">Heal Within. Shine Beyond.™</span>
-                        </div>
-                    </div>
-                    <p>A compassionate, non-judgmental space where people feel seen, understood, and empowered to
-                        transform their lives.</p>
-                    <div class="footer-social">
-                        <a href="#" aria-label="Facebook" class="social-link"><svg width="18" height="18"
-                                viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-                            </svg></a>
-                        <a href="#" aria-label="Instagram" class="social-link"><svg width="18" height="18"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="2" y="2" width="20" height="20" rx="5" />
-                                <circle cx="12" cy="12" r="5" />
-                                <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none" />
-                            </svg></a>
-                        <a href="#" aria-label="LinkedIn" class="social-link"><svg width="18" height="18"
-                                viewBox="0 0 24 24" fill="currentColor">
-                                <path
-                                    d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-                                <rect x="2" y="9" width="4" height="12" />
-                                <circle cx="4" cy="4" r="2" />
-                            </svg></a>
-                    </div>
+                    <span class="nav-mark">✦</span>
+                    <div><span class="nav-name">Inner Harmony</span><span class="nav-tag">Heal within, shine beyond ™</span></div>
                 </div>
-                <div class="footer-links">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="#about">About Dr. Gargee</a></li>
-                        <li><a href="#services">Our Services</a></li>
-                        <li><a href="#parenting">Parenting Blueprint</a></li>
-                        <li><a href="#career">Career Compass</a></li>
-                        <li><a href="#contact">Contact</a></li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h4>Programmes</h4>
-                    <ul>
-                        <li><a href="#parenting-assessment">Parenting Assessment</a></li>
-                        <li><a href="#dmit">DMIT Blueprint</a></li>
-                        <li><a href="#tarot">Tarot Healing</a></li>
-                        <li><a href="#reiki">Reiki Blueprint</a></li>
-                        <li><a href="#career">Career Counselling</a></li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h4>Contact</h4>
-                    <ul>
-                        <li>contact@innerharmony.in</li>
-                        <li>+91 99300 34340</li>
-                        <li>Pune, Maharashtra, India</li>
-                    </ul>
-                </div>
+                <p class="footer-note">A compassionate, non-judgmental space where people feel seen, understood, and empowered to become themselves.</p>
             </div>
             <div class="footer-bottom">
-                <p>© 2026 Inner Harmony – Dr. Gargee Gadgil. All rights reserved.</p>
-
+                <span>© 2026 Inner Harmony · Dr. Gargee Gadgil</span>
+                <span>Made with quiet care</span>
             </div>
         </div>
     </footer>
 
-    <!-- Floating WhatsApp -->
     <a href="https://wa.me/919930034340?text=Hi%20Dr.%20Gargee,%20I%20would%20like%20to%20book%20a%20session."
-        class="whatsapp-float" target="_blank" rel="noopener" aria-label="Chat on WhatsApp" id="whatsappFloat">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-            <path
-                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-        </svg>
+        class="whatsapp-float" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
     </a>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-    <script src="js/main.js"></script>
-    <script type="module" src="js/hero-webgl.js?v=5"></script>
+    <script src="js/journey.js?v=2"></script>
 </body>
 
 </html>
